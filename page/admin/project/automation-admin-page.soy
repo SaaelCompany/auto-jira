@@ -1,0 +1,71 @@
+{namespace JIRA.Automation.Project.Admin.Page}
+
+/**
+ * @param projectKey
+ */
+{template .main}
+   {call aui.page.document}
+       {param extraClasses}automation-admin-page{/param}
+       {param windowTitle: getText('com.codebarrel.automation.admin.link') /}
+       {param headContent}
+           <meta name="decorator" content="atl.admin" />
+           <meta name="admin.active.section" content="atl.jira.proj.config"/>
+           <meta name="admin.active.section" content="atl.jira.proj.config"/>
+           <meta name="admin.active.tab" content="automation_project_admin"/>
+           <meta name="projectKey" content="{$projectKey}"/>
+       {/param}
+       {param content}
+           <iframe class="automation-page-container" src="{contextPath()}/secure/AutomationProjectAdminAction!iframe.jspa?projectKey={$projectKey}&amp;decorator=none"></iframe>
+       {/param}
+   {/call}
+{/template}
+
+/**
+ */
+{template .mainGlobal}
+   {call aui.page.document}
+       {param extraClasses}automation-admin-page{/param}
+       {param windowTitle: getText('com.codebarrel.automation.admin.link') /}
+       {param headContent}
+           <meta name="decorator" content="atl.admin" />
+           <meta name="admin.active.section" content="admin_system_menu/top_system_section/security"/>
+           <meta name="admin.active.tab" content="automation_global_admin"/>
+       {/param}
+       {param content}
+           <iframe class="automation-page-container" src="{contextPath()}/secure/AutomationGlobalAdminAction!iframe.jspa?decorator=none"></iframe>
+       {/param}
+   {/call}
+{/template}
+
+/**
+* @param context
+* @param localeString
+* @param iframeResources
+* @param addonResources
+* @param isDevMode
+* @param ruleLabels
+* @param rules
+*/
+{template .iframe}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="automation.user.locale" content="{$localeString}" />
+    </head>
+    <body style="background-color:white">
+        <div
+            id="automation-admin-container"
+            data-labels="{$ruleLabels}"
+            data-rules="{$rules}"
+            data-context="{$context}"
+        ></div>
+        {$iframeResources|noAutoescape}
+        {if $isDevMode}
+            <script src="http://localhost:8078/html/js/standalone-i18n.js"></script>
+            <script src="http://localhost:8078/automationManager.pack.js"></script>
+            <strong id="dev-placeholder">You seeing nothing? Try running yarn dev-jira buddy...</strong>
+        {/if}
+        {$addonResources|noAutoescape}
+    </body>
+</html>
+{/template}
