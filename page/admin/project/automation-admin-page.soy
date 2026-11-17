@@ -48,11 +48,12 @@
 */
 {template .iframe}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{$localeString}">
     <head>
         <meta name="automation.user.locale" content="{$localeString}" />
     </head>
-    <body style="background-color:white">
+    <body class="nc-nodes" style="background-color:#f7f8f9;margin:0;">
+        <div id="node-canvas-root" data-rest="{contextPath()}/rest/cb-automation/latest/node-schema"></div>
         <div
             id="automation-admin-container"
             data-labels="{$ruleLabels}"

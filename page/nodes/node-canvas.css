@@ -1,0 +1,547 @@
+/* Редактор нод для Automation for Jira. Стили повторяют канвас со скриншота. */
+
+#node-canvas-root,
+#node-canvas-root * {
+    box-sizing: border-box;
+}
+
+#node-canvas-root {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, "Helvetica Neue", Arial, sans-serif;
+    color: #172b4d;
+    font-size: 14px;
+    line-height: 1.4;
+    background: #f7f8f9;
+    min-height: 100vh;
+}
+
+body.nc-nodes {
+    margin: 0;
+    background: #f7f8f9;
+}
+
+body.nc-nodes #automation-admin-container {
+    display: none !important;
+}
+
+body.nc-classic #node-canvas-root {
+    display: none !important;
+}
+
+.nc-back {
+    display: none;
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 50;
+    background: #0052cc;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(9, 30, 66, 0.25);
+}
+
+body.nc-classic .nc-back {
+    display: inline-block;
+}
+
+.nc-top {
+    height: 44px;
+    background: #f4f5f7;
+    border-bottom: 1px solid #dfe1e6;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+}
+
+.nc-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #172b4d;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 2px 6px;
+    min-width: 80px;
+    max-width: 360px;
+}
+
+.nc-name:hover,
+.nc-name:focus {
+    border-color: #dfe1e6;
+    background: #fff;
+    outline: none;
+}
+
+.nc-top-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.nc-btn {
+    background: #fafbfc;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    color: #42526e;
+    font-size: 14px;
+    line-height: 20px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.nc-btn:hover {
+    background: #ebecf0;
+}
+
+.nc-btn-primary {
+    background: #0052cc;
+    border-color: #0052cc;
+    color: #fff;
+}
+
+.nc-btn-primary:hover {
+    background: #0065ff;
+}
+
+.nc-sub {
+    background: #fff;
+    border-bottom: 1px solid #dfe1e6;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    flex-wrap: wrap;
+}
+
+.nc-sub label {
+    color: #42526e;
+    font-size: 14px;
+}
+
+.nc-block-title {
+    width: 240px;
+    height: 32px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    padding: 0 8px;
+    font-size: 14px;
+    color: #172b4d;
+    background: #fff;
+}
+
+.nc-block-title:focus,
+.nc-name:focus,
+.nc-opt input:focus,
+.nc-settings input:focus,
+.nc-settings select:focus,
+.nc-settings textarea:focus {
+    border-color: #4c9aff;
+    outline: none;
+    box-shadow: 0 0 0 1px #4c9aff;
+}
+
+.nc-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #172b4d;
+    cursor: pointer;
+    user-select: none;
+}
+
+.nc-check input {
+    accent-color: #0052cc;
+    width: 16px;
+    height: 16px;
+}
+
+.nc-status {
+    margin-left: auto;
+    color: #6b778c;
+    font-size: 12px;
+}
+
+.nc-help {
+    margin: 0;
+    padding: 8px 16px 10px;
+    color: #6b778c;
+    font-size: 12px;
+    line-height: 1.45;
+    background: #fff;
+    border-bottom: 1px solid #f0f1f3;
+}
+
+.nc-scroll {
+    overflow: auto;
+    height: calc(100vh - 128px);
+    min-height: 520px;
+    background: #f7f8f9;
+}
+
+.nc-canvas {
+    position: relative;
+    min-width: 1400px;
+    min-height: 860px;
+    background-color: #f7f8f9;
+    background-image: radial-gradient(circle, #c5cad3 1.15px, transparent 1.25px);
+    background-size: 72px 72px;
+    background-position: 8px 18px;
+}
+
+.nc-wires {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.nc-wires path.nc-line {
+    fill: none;
+    stroke-width: 2;
+    pointer-events: none;
+}
+
+.nc-wires path.nc-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 14;
+    pointer-events: stroke;
+    cursor: pointer;
+}
+
+.nc-wires path.nc-temp {
+    fill: none;
+    stroke: #6b778c;
+    stroke-width: 2;
+    stroke-dasharray: 5 4;
+    pointer-events: none;
+}
+
+.nc-empty {
+    position: absolute;
+    left: 24px;
+    top: 24px;
+    color: #6b778c;
+    font-size: 14px;
+    z-index: 2;
+}
+
+.nc-node {
+    position: absolute;
+    width: 232px;
+    background: #fff;
+    border: 1px solid rgba(9, 30, 66, 0.08);
+    border-radius: 8px;
+    box-shadow: 0 1px 1px rgba(9, 30, 66, 0.12), 0 0 1px rgba(9, 30, 66, 0.12);
+    z-index: 2;
+    overflow: visible;
+}
+
+.nc-node.is-selected {
+    box-shadow: 0 0 0 2px rgba(76, 154, 255, 0.45), 0 8px 16px rgba(9, 30, 66, 0.12);
+}
+
+.nc-node.is-target {
+    box-shadow: 0 0 0 2px #36b37e;
+}
+
+.nc-head {
+    border-radius: 7px 7px 0 0;
+    color: #fff;
+    min-height: 44px;
+    padding: 6px 8px 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: grab;
+    user-select: none;
+}
+
+.nc-head:active {
+    cursor: grabbing;
+}
+
+.nc-head-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.nc-head-title {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.nc-head-type {
+    font-size: 11px;
+    opacity: 0.92;
+    line-height: 1.2;
+}
+
+.nc-badge {
+    background: #fff;
+    color: #172b4d;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+}
+
+.nc-swatch {
+    width: 32px;
+    height: 18px;
+    border-radius: 3px;
+    border: none;
+    flex: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.nc-x {
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 3px;
+    flex: none;
+    padding: 0;
+}
+
+.nc-x:hover,
+.nc-swatch:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.nc-body {
+    padding: 6px 10px 10px;
+}
+
+.nc-cond {
+    color: #6b778c;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 0;
+    margin: 2px 0 4px;
+}
+
+.nc-cond:empty {
+    display: none;
+}
+
+.nc-hint {
+    color: #6b778c;
+    font-size: 11px;
+    margin: 0 0 4px;
+}
+
+.nc-opt {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    margin-top: 6px;
+}
+
+.nc-opt input {
+    flex: 1;
+    min-width: 0;
+    height: 30px;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    padding: 0 8px;
+    font-size: 13px;
+    color: #172b4d;
+    background: #fff;
+}
+
+.nc-plus {
+    width: 18px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    color: #6b778c;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.nc-plus:hover {
+    color: #172b4d;
+}
+
+.nc-chip {
+    margin-top: 4px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    font-size: 12px;
+    color: #172b4d;
+}
+
+.nc-chip-sq {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex: none;
+}
+
+.nc-chip-label {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nc-chip-x {
+    border: none;
+    background: transparent;
+    color: #6b778c;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+.nc-port {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(9, 30, 66, 0.15);
+    position: absolute;
+    z-index: 3;
+    cursor: crosshair;
+    padding: 0;
+}
+
+.nc-port-in {
+    left: -8px;
+    top: 50%;
+    margin-top: -8px;
+}
+
+.nc-port-out {
+    right: -18px;
+    top: 50%;
+    margin-top: -8px;
+}
+
+.nc-port.is-armed {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 0 5px currentColor;
+}
+
+.nc-value-port {
+    position: relative;
+    height: 28px;
+    margin-top: 4px;
+}
+
+.nc-value-port span {
+    color: #6b778c;
+    font-size: 12px;
+    line-height: 28px;
+}
+
+.nc-settings {
+    position: absolute;
+    width: 280px;
+    background: #fff;
+    border: 1px solid #dfe1e6;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(9, 30, 66, 0.18);
+    z-index: 6;
+    padding: 12px;
+}
+
+.nc-settings h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.nc-settings .nc-field {
+    margin-bottom: 8px;
+}
+
+.nc-settings .nc-field > span {
+    display: block;
+    font-size: 12px;
+    color: #6b778c;
+    margin-bottom: 4px;
+}
+
+.nc-settings input[type="text"],
+.nc-settings select,
+.nc-settings textarea {
+    width: 100%;
+    border: 1px solid #dfe1e6;
+    border-radius: 3px;
+    font-size: 13px;
+    color: #172b4d;
+    padding: 6px 8px;
+    background: #fff;
+    font-family: inherit;
+}
+
+.nc-settings textarea {
+    min-height: 56px;
+    resize: vertical;
+}
+
+.nc-colors {
+    display: flex;
+    gap: 6px;
+}
+
+.nc-colors button {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #dfe1e6;
+    cursor: pointer;
+    padding: 0;
+}
+
+.nc-colors button.is-on {
+    box-shadow: 0 0 0 2px #172b4d;
+}
+
+.nc-settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.nc-req {
+    margin-left: 4px;
+}
