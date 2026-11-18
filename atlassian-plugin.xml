@@ -3,7 +3,7 @@
         <description><![CDATA[
             <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira и работает с теми же правилами.</p>
         ]]></description>
-        <version>1.0.8</version>
+        <version>1.0.9</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
@@ -12,125 +12,29 @@
         <param name="vendor-logo">images/plugin/vendor-logo.png</param>
         <param name="atlassian-data-center-status">compatible</param>
         <param name="atlassian-data-center-compatible">true</param>
-        <param name="configure.url">/plugins/servlet/node-forms</param>
-        <param name="post.install.url">/plugins/servlet/node-forms</param>
+        <param name="configure.url">/download/resources/com.saael.nodeforms:node-canvas/index.html</param>
+        <param name="post.install.url">/download/resources/com.saael.nodeforms:node-canvas/index.html</param>
     </plugin-info>
 
     <resource type="i18n" name="i18n" location="com/saael/nodeforms/i18n"/>
 
-    <servlet key="node-forms-servlet" name="Редактор нод" class="com.saael.nodeforms.NodeCanvasServlet">
-        <description>Страница редактора правил</description>
-        <url-pattern>/node-forms</url-pattern>
-    </servlet>
-
     <web-resource key="node-canvas" name="Редактор нод">
+        <resource type="download" name="index.html" location="page/nodes/index.html"/>
         <resource type="download" name="node-canvas.css" location="page/nodes/node-canvas.css"/>
         <resource type="download" name="node-canvas.js" location="page/nodes/node-canvas.js"/>
     </web-resource>
 
-    <web-resource key="iframe-resizer-parent" name="iframe resizer">
-        <resource type="download" name="iframeResizer-3.5.5.min.js" location="lib/iframe-sizer/iframeResizer-3.5.5.min.js"/>
-    </web-resource>
-
-    <web-resource key="iframe-resizer-content" name="iframe resizer content">
-        <resource type="download" name="iframeResizer.contentWindow-3.5.5.min.js" location="lib/iframe-sizer/iframeResizer.contentWindow-3.5.5.min.js"/>
-    </web-resource>
-
-    <web-resource key="aui-6.0.5" name="AUI">
-        <resource type="download" name="aui.min.css" location="lib/aui/6.0.5/aui.min.css"/>
-        <resource type="download" name="aui-experimental.min.css" location="lib/aui/6.0.5/aui-experimental.min.css"/>
-        <resource type="download" name="aui-iconfonts.min.css" location="lib/aui/6.0.5/aui-iconfonts.min.css"/>
-        <resource type="download" name="aui.min.js" location="lib/aui/6.0.5/aui.min.js"/>
-    </web-resource>
-
-    <web-resource key="react-lib" name="React">
-        <resource type="download" name="react.min.js" location="lib/react-16/8/6/react.min.js"/>
-        <resource type="download" name="react-dom.min.js" location="lib/react-16/8/6/react-dom.min.js"/>
-    </web-resource>
-
-    <web-resource key="automation-page" name="Страница автоматизации">
-        <resource type="download" name="automation-page.js" location="page/admin/common/automation-page.js"/>
-        <resource type="download" name="automation-page.less" location="page/admin/common/automation-page.less"/>
-    </web-resource>
-
-    <web-resource key="manual-trigger-client-resources" name="Ручные триггеры">
-        <resource type="download" name="initManualTriggers.js" location="page/viewissue/initManualTriggers.js"/>
-    </web-resource>
-
-    <web-resource key="standalone-i18n" name="Переводы">
-        <resource type="download" name="standalone-i18n.js" location="page/standalone-i18n.js"/>
-    </web-resource>
-
-    <web-resource key="plugin-icon" name="Иконка">
-        <resource type="download" name="plugin-icon.png" location="images/plugin/plugin-icon.png"/>
-    </web-resource>
-
-    <web-resource key="plugin-logo" name="Логотип">
-        <resource type="download" name="plugin-logo.png" location="images/plugin/plugin-logo.png"/>
-    </web-resource>
-
-    <web-resource key="plugin-banner" name="Баннер">
-        <resource type="download" name="plugin-banner.png" location="images/plugin/plugin-banner.png"/>
-    </web-resource>
-
-    <web-resource key="vendor-icon" name="Иконка поставщика">
-        <resource type="download" name="vendor-icon.png" location="images/plugin/vendor-icon.png"/>
-    </web-resource>
-
-    <web-resource key="vendor-logo" name="Логотип поставщика">
-        <resource type="download" name="vendor-logo.png" location="images/plugin/vendor-logo.png"/>
-    </web-resource>
-
-    <web-resource key="plugin-icon-lite" name="Иконка lite">
-        <resource type="download" name="plugin-icon-lite.png" location="images/plugin/plugin-icon-lite.png"/>
-        <resource type="download" name="plugin-logo-lite.png" location="images/plugin/plugin-logo-lite.png"/>
-    </web-resource>
-
-    <web-section key="node-forms-section" name="Редактор нод" location="system.top.navigation.bar" weight="40">
+    <web-section key="node-forms-section" name="Редактор нод" location="top_system_section" weight="40">
         <label key="com.saael.nodeforms.section"/>
     </web-section>
 
-    <web-section key="node-forms-admin" name="Редактор нод" location="system.admin" weight="200">
-        <label key="com.saael.nodeforms.admin"/>
-    </web-section>
-
-    <web-section key="node-forms-ops" name="Правила" location="opsbar-operations" weight="80">
-        <label key="com.saael.nodeforms.issue"/>
-    </web-section>
-
-    <web-item key="node-forms-item" name="Редактор нод" section="system.top.navigation.bar/node-forms-section" weight="10">
+    <web-item key="node-forms-item" name="Редактор нод" section="top_system_section/node-forms-section" weight="10">
         <label key="com.saael.nodeforms.menu"/>
-        <link linkId="node-forms-admin">/plugins/servlet/node-forms</link>
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+        <link linkId="node-forms-admin">/download/resources/com.saael.nodeforms:node-canvas/index.html</link>
     </web-item>
 
     <web-item key="node-forms-project" name="Редактор нод" section="atl.jira.proj.config/projectgroup4" weight="500">
         <label key="com.saael.nodeforms.project"/>
-        <link linkId="node-forms-project">/plugins/servlet/node-forms?projectKey=$projectKeyEncoded</link>
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsProjectAdminCondition"/>
-    </web-item>
-
-    <web-item key="node-forms-admin-item" name="Редактор нод" section="system.admin/node-forms-admin" weight="10">
-        <label key="com.saael.nodeforms.admin"/>
-        <link linkId="node-forms-admin-item">/plugins/servlet/node-forms</link>
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
-    </web-item>
-
-    <web-item key="node-forms-settings-item" name="Редактор нод" section="system.admin/globalsettings" weight="200">
-        <label key="com.saael.nodeforms.menu"/>
-        <link linkId="node-forms-settings">/plugins/servlet/node-forms</link>
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
-    </web-item>
-
-    <web-item key="node-forms-system-item" name="Редактор нод" section="system.admin/system" weight="200">
-        <label key="com.saael.nodeforms.menu"/>
-        <link linkId="node-forms-system">/plugins/servlet/node-forms</link>
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
-    </web-item>
-
-    <web-item key="node-forms-issue" name="Правила" section="opsbar-operations/node-forms-ops" weight="10">
-        <label key="com.saael.nodeforms.issue"/>
-        <link linkId="node-forms-issue">/plugins/servlet/node-forms</link>
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+        <link linkId="node-forms-project">/download/resources/com.saael.nodeforms:node-canvas/index.html?projectKey=$projectKeyEncoded</link>
     </web-item>
 </atlassian-plugin>

@@ -442,12 +442,38 @@
         return root.getAttribute("data-rest") || "";
     }
 
-    function importUrl() {
-        var root = document.getElementById("node-canvas-root");
-        if (!root) {
+    function jiraContext() {
+        var path = window.location.pathname || "";
+        var markers = ["/download/resources/", "/plugins/servlet/"];
+        var i;
+        for (i = 0; i < markers.length; i++) {
+            var at = path.indexOf(markers[i]);
+            if (at >= 0) {
+                return path.slice(0, at);
+            }
+        }
+        return null;
+    }
+
+    function queryParam(name) {
+        var match = new RegExp("[?&]" + name + "=([^&]*)").exec(window.location.search || "");
+        if (!match) {
             return "";
         }
-        return root.getAttribute("data-import") || "";
+        return decodeURIComponent(match[1].replace(/\+/g, " "));
+    }
+
+    function importUrl() {
+        var root = document.getElementById("node-canvas-root");
+        var given = root ? (root.getAttribute("data-import") || "") : "";
+        if (given) {
+            return given;
+        }
+        var context = jiraContext();
+        if (context === null) {
+            return "";
+        }
+        return context + "/rest/cb-automation/latest/project/GLOBAL/rule/export";
     }
 
     function pageProject() {
@@ -457,6 +483,9 @@
         }
         var id = root.getAttribute("data-project") || "";
         var key = root.getAttribute("data-project-key") || "";
+        if (!id && !key) {
+            key = queryParam("projectKey");
+        }
         if (!id && !key) {
             return null;
         }
@@ -653,6 +682,9 @@
         root.appendChild(app);
 
         var classicHref = root.getAttribute("data-classic") || "";
+        if (!classicHref && jiraContext() !== null) {
+            classicHref = jiraContext() + "/secure/AutomationGlobalAdminAction!default.jspa";
+        }
         if (classicHref) {
             classic.textContent = "Automation for Jira";
         } else if (!document.getElementById("automation-admin-container")) {
