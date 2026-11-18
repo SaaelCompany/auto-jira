@@ -18,9 +18,32 @@
         { type: "jira.issue.event.trigger:updated", component: "TRIGGER", label: "Задача обновлена", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_updated", issueEvent: "issue_updated" } },
         { type: "jira.issue.event.trigger:deleted", component: "TRIGGER", label: "Задача удалена", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_deleted", issueEvent: "issue_deleted" } },
         { type: "jira.issue.event.trigger:commented", component: "TRIGGER", label: "Комментарий добавлен", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_updated", issueEvent: "issue_commented" } },
+        { type: "jira.issue.event.trigger:transitioned", component: "TRIGGER", label: "Статус изменён", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_updated", issueEvent: "issue_generic" } },
+        { type: "jira.issue.event.trigger:assigned", component: "TRIGGER", label: "Исполнитель изменён", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_updated", issueEvent: "issue_assigned" } },
+        { type: "jira.issue.event.trigger:moved", component: "TRIGGER", label: "Задача перемещена", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_updated", issueEvent: "issue_moved" } },
+        { type: "jira.issue.event.trigger:link", component: "TRIGGER", label: "Задача связана", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_updated", issueEvent: "issue_link" } },
+        { type: "jira.issue.event.trigger:link_deleted", component: "TRIGGER", label: "Связь удалена", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_updated", issueEvent: "issue_link_deleted" } },
+        { type: "jira.issue.event.trigger:worklog", component: "TRIGGER", label: "Учтён труд", kind: "Триггер", color: "blue", value: { eventKey: "jira:issue_updated", issueEvent: "issue_work_logged" } },
+        { type: "jira.issue.field.changed", component: "TRIGGER", label: "Изменено поле", kind: "Триггер", color: "blue", value: { field: "", actions: ["create", "edit", "transition"] } },
+        { type: "jira.multiple.issue.event", component: "TRIGGER", label: "Несколько событий задачи", kind: "Триггер", color: "blue", value: { events: [] } },
+        { type: "jira.jql.scheduled", component: "TRIGGER", label: "Запланированный поиск JQL", kind: "Триггер", color: "blue", value: { jql: "", schedule: { cronExpression: "0 0 9 ? * MON-FRI" } } },
+        { type: "jira.incoming.webhook", component: "TRIGGER", label: "Входящий webhook", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.manual.trigger.issue", component: "TRIGGER", label: "Ручной запуск", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.sla.threshold.trigger", component: "TRIGGER", label: "Порог SLA", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.sprint.event.trigger:started", component: "TRIGGER", label: "Спринт начат", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.sprint.event.trigger:closed", component: "TRIGGER", label: "Спринт завершён", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.sprint.event.trigger:created", component: "TRIGGER", label: "Спринт создан", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.version.event.trigger:released", component: "TRIGGER", label: "Версия выпущена", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.version.event.trigger:unreleased", component: "TRIGGER", label: "Версия снята с выпуска", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.version.event.trigger:created", component: "TRIGGER", label: "Версия создана", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.version.event.trigger:updated", component: "TRIGGER", label: "Версия обновлена", kind: "Триггер", color: "blue", value: {} },
+        { type: "jira.issue.property.set.event", component: "TRIGGER", label: "Изменено свойство задачи", kind: "Триггер", color: "blue", value: {} },
         { type: "jira.jql.condition", component: "CONDITION", label: "Условие JQL", kind: "Условие", color: "purple", value: { jql: "" } },
         { type: "jira.issue.condition", component: "CONDITION", label: "Условие задачи", kind: "Условие", color: "purple", value: { selectedField: { type: "FIELDS", value: "issuetype" }, selectedFieldType: "issuetype", comparison: "EQUALS", compareValue: { type: "ID", value: "" } } },
+        { type: "jira.comparator.condition", component: "CONDITION", label: "Сравнение значений", kind: "Условие", color: "purple", value: {} },
         { type: "jira.user.condition", component: "CONDITION", label: "Условие пользователя", kind: "Условие", color: "purple", value: {} },
+        { type: "jira.issues.related.condition", component: "CONDITION", label: "Связанные задачи существуют", kind: "Условие", color: "purple", value: {} },
+        { type: "jira.affected.services.condition", component: "CONDITION", label: "Затронутые сервисы", kind: "Условие", color: "purple", value: {} },
         { type: "jira.condition.container.block", component: "CONDITION", label: "Если / иначе", kind: "Условие", color: "purple", value: { summary: "условие ветки" } },
         { type: "jira.condition.if.block", component: "CONDITION", label: "Если", kind: "Условие", color: "orange", value: {} },
         { type: "jira.condition.else.block", component: "CONDITION", label: "Иначе", kind: "Условие", color: "green", value: {} },
@@ -29,15 +52,31 @@
         { type: "jira.issue.transition", component: "ACTION", label: "Перевести задачу", kind: "Действие", color: "green", value: { statusName: "" } },
         { type: "jira.issue.edit", component: "ACTION", label: "Редактировать задачу", kind: "Действие", color: "teal", value: {} },
         { type: "jira.issue.create", component: "ACTION", label: "Создать задачу", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.create.subtasks", component: "ACTION", label: "Создать подзадачи", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.clone", component: "ACTION", label: "Клонировать задачу", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.link", component: "ACTION", label: "Связать задачи", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.delete.link", component: "ACTION", label: "Удалить связь", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.add.watcher", component: "ACTION", label: "Добавить наблюдателя", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.delete", component: "ACTION", label: "Удалить задачу", kind: "Действие", color: "orange", value: {} },
+        { type: "jira.issue.delete.comment", component: "ACTION", label: "Удалить комментарий", kind: "Действие", color: "orange", value: {} },
+        { type: "jira.issue.deleteattachment", component: "ACTION", label: "Удалить вложение", kind: "Действие", color: "orange", value: {} },
+        { type: "jira.issue.outgoing.email", component: "ACTION", label: "Отправить письмо", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.outgoing.webhook", component: "ACTION", label: "Исходящий webhook", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.sd.create.request", component: "ACTION", label: "Создать заявку", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.sd.add.customer", component: "ACTION", label: "Добавить клиента", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.worklog.add", component: "ACTION", label: "Добавить учёт труда", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.publish.event", component: "ACTION", label: "Опубликовать событие", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.set.entity.property", component: "ACTION", label: "Записать свойство", kind: "Действие", color: "teal", value: {} },
         { type: "codebarrel.action.log", component: "ACTION", label: "Запись в журнал", kind: "Действие", color: "teal", value: { message: "" } },
-        { type: "jira.issue.related", component: "BRANCH", label: "Связанные задачи", kind: "Ветвление", color: "green", value: { relatedType: "linked", jql: "" } }
+        { type: "jira.issue.related", component: "BRANCH", label: "Ветка: связанные задачи", kind: "Ветвление", color: "green", value: { relatedType: "linked", jql: "" } }
     ];
 
-    var HELP = "Нажмите шаг, чтобы открыть настройки. Нажмите пустое место, чтобы закрыть окно. Правый клик по канвасу добавляет действие. Нажмите точку или перетащите её на шаг, чтобы связать. Нажмите линию, чтобы отвязать. Перетащите шаг, чтобы переместить.";
+    var HELP = "Правый клик по пустому месту открывает меню: триггер, условие, действие или ветка. Правый клик по триггеру меняет его тип, как в Automation for Jira. Клик по шагу открывает настройки. Точка связывает шаги.";
     var STORAGE_KEY = "saael-nodeforms-rule-v1";
     var EMPTY_TITLE = "Без названия";
 
     var state = null;
+    var picker = null;
     var drag = null;
     var armed = null;
     var saveTimer = null;
@@ -527,18 +566,32 @@
             trigger: {
                 id: triggerId,
                 component: "TRIGGER",
-                type: "jira.issue.event.trigger:created",
-                schemaVersion: 1,
-                value: { eventKey: "jira:issue_created", issueEvent: "issue_created" },
+                type: "",
+                value: {},
                 children: [],
                 conditions: []
             },
             components: []
         });
-        statusText = project
-            ? ("Новое правило проекта " + project.key + ". Оно выключено, пока вы его не включите.")
-            : "Новое глобальное правило. Оно выключено, пока вы его не включите.";
+        statusText = "Выберите триггер в меню. Правило выключено, пока вы его не включите.";
         paintStatus();
+        var created = null;
+        state.fields.forEach(function (field) {
+            if (field.component === "TRIGGER") {
+                created = field;
+            }
+        });
+        if (created) {
+            var node = document.querySelector('.nc-node[data-id="' + created.id + '"]');
+            var rect = node ? node.getBoundingClientRect() : null;
+            openPicker({
+                mode: "replace",
+                fieldId: created.id,
+                triggersOnly: true,
+                clientX: rect ? rect.right + 8 : 280,
+                clientY: rect ? rect.top : 120
+            });
+        }
     }
 
     function fetchServer() {
@@ -704,7 +757,14 @@
             scheduleSave();
         });
         add.addEventListener("click", function () {
-            addField(80 + (state.fields.length % 5) * 28, 48 + (state.fields.length % 6) * 36);
+            var rect = add.getBoundingClientRect();
+            openPicker({
+                mode: "add",
+                x: 80 + (state.fields.length % 5) * 28,
+                y: 48 + (state.fields.length % 6) * 36,
+                clientX: rect.left,
+                clientY: rect.bottom + 4
+            });
         });
         create.addEventListener("click", function () {
             newRule();
@@ -843,7 +903,7 @@
         var host = document.getElementById("nc-nodes");
         host.innerHTML = "";
         if (!state.fields.length) {
-            host.appendChild(el("div", "nc-empty", "Правый клик или кнопка «Добавить шаг», чтобы создать первое действие."));
+            host.appendChild(el("div", "nc-empty", "Правый клик открывает меню. Сначала выберите триггер, затем условие или действие."));
         }
         state.fields.forEach(function (field) {
             host.appendChild(renderNode(field));
@@ -992,16 +1052,35 @@
             });
             return input;
         }));
-        panel.appendChild(settingField("Компонент", function () {
+        panel.appendChild(settingField(field.component === "TRIGGER" ? "Триггер" : "Тип шага", function () {
             var select = document.createElement("select");
-            CATALOG.forEach(function (spec) {
-                var option = document.createElement("option");
-                option.value = spec.type;
-                option.textContent = spec.kind + ": " + spec.label;
-                option.selected = spec.type === field.componentType;
-                select.appendChild(option);
+            var kinds = field.component === "TRIGGER"
+                ? ["TRIGGER"]
+                : ["TRIGGER", "CONDITION", "ACTION", "BRANCH"];
+            var groupNames = { TRIGGER: "Триггеры", CONDITION: "Условия", ACTION: "Действия", BRANCH: "Ветвление" };
+            if (!field.componentType) {
+                var blank = document.createElement("option");
+                blank.value = "";
+                blank.textContent = "Выберите триггер";
+                blank.selected = true;
+                select.appendChild(blank);
+            }
+            kinds.forEach(function (kind) {
+                var group = document.createElement("optgroup");
+                group.label = groupNames[kind];
+                CATALOG.forEach(function (spec) {
+                    if (spec.component !== kind) {
+                        return;
+                    }
+                    var option = document.createElement("option");
+                    option.value = spec.type;
+                    option.textContent = spec.label;
+                    option.selected = spec.type === field.componentType;
+                    group.appendChild(option);
+                });
+                select.appendChild(group);
             });
-            if (!findCatalog(field.componentType)) {
+            if (field.componentType && !findCatalog(field.componentType)) {
                 var current = document.createElement("option");
                 current.value = field.componentType;
                 current.textContent = field.componentType || "Неизвестный компонент";
@@ -1161,17 +1240,43 @@
                 return input;
             }));
         }
-        if (type.indexOf("trigger") !== -1) {
-            panel.appendChild(settingField("Ключ события", function () {
+        if (type === "jira.jql.scheduled") {
+            panel.appendChild(settingField("JQL", function () {
+                var area = document.createElement("textarea");
+                area.value = value.jql || "";
+                area.addEventListener("input", function () {
+                    value.jql = area.value;
+                    scheduleSave();
+                });
+                return area;
+            }));
+            panel.appendChild(settingField("Расписание cron", function () {
                 var input = document.createElement("input");
                 input.type = "text";
-                input.value = value.issueEvent || value.eventKey || "";
+                input.value = (value.schedule && value.schedule.cronExpression) || "";
                 input.addEventListener("input", function () {
-                    value.issueEvent = input.value;
+                    value.schedule = value.schedule || {};
+                    value.schedule.cronExpression = input.value;
                     scheduleSave();
                 });
                 return input;
             }));
+        }
+        if (type === "jira.issue.field.changed") {
+            panel.appendChild(settingField("Поле", function () {
+                var input = document.createElement("input");
+                input.type = "text";
+                input.value = value.field || "";
+                input.placeholder = "summary";
+                input.addEventListener("input", function () {
+                    value.field = input.value;
+                    scheduleSave();
+                });
+                return input;
+            }));
+        }
+        if (type === "jira.incoming.webhook" || type === "jira.manual.trigger.issue" || type === "jira.sla.threshold.trigger") {
+            panel.appendChild(el("p", "nc-menu-hint", "Тип совпадает с Automation for Jira. Остальные поля этого триггера сохраняются как есть."));
         }
     }
 
@@ -1318,8 +1423,8 @@
         return centerOf(node.querySelector(".nc-port-in"));
     }
 
-    function addField(x, y) {
-        var spec = findCatalog("jira.issue.comment");
+    function addField(x, y, type) {
+        var spec = findCatalog(type || "jira.issue.comment");
         var field = {
             id: newComponentId(),
             index: nextIndex(),
@@ -1652,6 +1757,9 @@
     }
 
     function ruleDamage(built) {
+        if (!built.trigger || !built.trigger.type) {
+            return "Выберите триггер: правый клик по синей карточке. В Automation for Jira ничего не записано.";
+        }
         if (!state.sourceRule) {
             return "";
         }
@@ -1729,7 +1837,7 @@
         return {
             id: comp.id != null ? String(comp.id) : newComponentId(),
             index: index,
-            title: (spec && spec.label) || comp.type || "Шаг",
+            title: (spec && spec.label) || (!comp.type && comp.component === "TRIGGER" ? "Выберите триггер" : (comp.type || "Шаг")),
             componentType: comp.type || "",
             component: comp.component || (spec && spec.component) || "ACTION",
             schemaVersion: comp.schemaVersion != null ? comp.schemaVersion : null,
@@ -2197,6 +2305,9 @@
     }
 
     function onPointerDown(event) {
+        if (picker && !closest(event.target, ".nc-menu") && event.target.id !== "nc-add") {
+            closePicker();
+        }
         if (!document.body.classList.contains("nc-nodes")) {
             return;
         }
@@ -2379,19 +2490,189 @@
         render();
     }
 
+    function openPicker(opts) {
+        picker = {
+            mode: opts.mode || "add",
+            fieldId: opts.fieldId || "",
+            x: opts.x || 80,
+            y: opts.y || 48,
+            clientX: opts.clientX || 24,
+            clientY: opts.clientY || 24,
+            triggersOnly: !!opts.triggersOnly,
+            query: ""
+        };
+        drawPicker();
+    }
+
+    function closePicker() {
+        picker = null;
+        var old = document.getElementById("nc-menu");
+        if (old) {
+            old.parentNode.removeChild(old);
+        }
+    }
+
+    function pickerKinds() {
+        if (!picker) {
+            return [];
+        }
+        if (picker.triggersOnly) {
+            return ["TRIGGER"];
+        }
+        if (picker.mode === "replace") {
+            var field = fieldById(picker.fieldId);
+            if (field && field.component === "TRIGGER") {
+                return ["TRIGGER"];
+            }
+        }
+        return ["TRIGGER", "CONDITION", "ACTION", "BRANCH"];
+    }
+
+    function drawPicker() {
+        var old = document.getElementById("nc-menu");
+        if (old) {
+            old.parentNode.removeChild(old);
+        }
+        if (!picker) {
+            return;
+        }
+        var kinds = pickerKinds();
+        var menu = el("div", "nc-menu");
+        menu.id = "nc-menu";
+        var title = kinds.length === 1 && kinds[0] === "TRIGGER"
+            ? "Выберите триггер"
+            : (picker.mode === "replace" ? "Заменить шаг" : "Добавить шаг");
+        menu.appendChild(el("div", "nc-menu-title", title));
+        var search = document.createElement("input");
+        search.type = "search";
+        search.placeholder = "Поиск типа";
+        search.value = picker.query || "";
+        search.addEventListener("input", function () {
+            picker.query = search.value;
+            drawPicker();
+            var again = document.querySelector("#nc-menu input");
+            if (again) {
+                again.focus();
+                var len = again.value.length;
+                if (again.setSelectionRange) {
+                    again.setSelectionRange(len, len);
+                }
+            }
+        });
+        menu.appendChild(search);
+        var query = (picker.query || "").toLowerCase();
+        var groupNames = { TRIGGER: "Триггеры", CONDITION: "Условия", ACTION: "Действия", BRANCH: "Ветвление" };
+        var any = false;
+        kinds.forEach(function (kind) {
+            var items = [];
+            CATALOG.forEach(function (spec) {
+                if (spec.component !== kind) {
+                    return;
+                }
+                if (query && (spec.label + " " + spec.kind).toLowerCase().indexOf(query) === -1) {
+                    return;
+                }
+                items.push(spec);
+            });
+            if (!items.length) {
+                return;
+            }
+            any = true;
+            menu.appendChild(el("div", "nc-menu-group", groupNames[kind]));
+            items.forEach(function (spec) {
+                var button = el("button", "nc-menu-item", spec.label);
+                button.type = "button";
+                button.addEventListener("click", function () {
+                    chooseSpec(spec);
+                });
+                menu.appendChild(button);
+            });
+        });
+        if (!any) {
+            menu.appendChild(el("div", "nc-menu-empty", "Ничего не найдено"));
+        }
+        document.body.appendChild(menu);
+        var width = 320;
+        var height = menu.offsetHeight || 360;
+        var left = picker.clientX;
+        var top = picker.clientY;
+        if (left + width > window.innerWidth - 8) {
+            left = window.innerWidth - width - 8;
+        }
+        if (top + height > window.innerHeight - 8) {
+            top = Math.max(8, window.innerHeight - height - 8);
+        }
+        menu.style.left = Math.max(8, left) + "px";
+        menu.style.top = Math.max(8, top) + "px";
+    }
+
+    function existingTrigger() {
+        var found = null;
+        state.fields.forEach(function (field) {
+            if (!found && field.component === "TRIGGER") {
+                found = field;
+            }
+        });
+        return found;
+    }
+
+    function chooseSpec(spec) {
+        var mode = picker ? picker.mode : "add";
+        var fieldId = picker ? picker.fieldId : "";
+        var x = picker ? picker.x : 80;
+        var y = picker ? picker.y : 48;
+        closePicker();
+        if (mode === "replace") {
+            var field = fieldById(fieldId);
+            if (field) {
+                applyCatalog(field, spec.type);
+                state.selectedId = field.id;
+            }
+        } else if (spec.component === "TRIGGER" && existingTrigger()) {
+            applyCatalog(existingTrigger(), spec.type);
+            state.selectedId = existingTrigger().id;
+            statusText = "Триггер заменён: " + spec.label;
+            paintStatus();
+        } else {
+            addField(x, y, spec.type);
+            return;
+        }
+        scheduleSave();
+        render();
+    }
+
     function onContextMenu(event) {
-        if (!document.body.classList.contains("nc-nodes")) {
+        if (!document.body.classList.contains("nc-nodes") || !state || state.view === "library") {
             return;
         }
-        if (!closest(event.target, ".nc-canvas")) {
+        var node = closest(event.target, ".nc-node");
+        var canvas = closest(event.target, ".nc-canvas");
+        if (!node && !canvas) {
             return;
         }
-        if (closest(event.target, ".nc-node") || closest(event.target, ".nc-settings")) {
+        if (closest(event.target, ".nc-settings")) {
             return;
         }
         event.preventDefault();
         var point = canvasPoint(event.clientX, event.clientY);
-        addField(point.x, point.y);
+        if (node) {
+            var field = fieldById(node.dataset.id);
+            openPicker({
+                mode: "replace",
+                fieldId: node.dataset.id,
+                triggersOnly: field && field.component === "TRIGGER",
+                clientX: event.clientX,
+                clientY: event.clientY
+            });
+            return;
+        }
+        openPicker({
+            mode: "add",
+            x: point.x,
+            y: point.y,
+            clientX: event.clientX,
+            clientY: event.clientY
+        });
     }
 
     function onKeyDown(event) {
@@ -2399,6 +2680,10 @@
             return;
         }
         if (event.key === "Escape") {
+            if (picker) {
+                closePicker();
+                return;
+            }
             state.selectedId = null;
             armed = null;
             drag = null;
@@ -2710,6 +2995,18 @@
         }
     }
 
+    function chooseMenu(label) {
+        var buttons = document.querySelectorAll(".nc-menu-item");
+        var i;
+        for (i = 0; i < buttons.length; i++) {
+            if (buttons[i].textContent === label) {
+                buttons[i].click();
+                return;
+            }
+        }
+        throw new Error("нет пункта меню: " + label);
+    }
+
     function runAutotest() {
         var errors = [];
         function assert(cond, message) {
@@ -2725,6 +3022,8 @@
             assert(conds.indexOf("если тип задачи") !== -1, "условие правила: " + conds);
             assert(conds.indexOf("Медицин") === -1, "на канвасе не должно остаться полей формы");
             document.getElementById("nc-add").click();
+            assert(document.getElementById("nc-menu"), "кнопка открывает меню типов");
+            chooseMenu("Комментарий к задаче");
             assert(document.querySelectorAll(".nc-node").length === 6, "кнопка добавляет шаг");
             var added = state.fields[state.fields.length - 1];
             assert(added.componentType === "jira.issue.comment", "новый шаг — комментарий");
@@ -2756,8 +3055,22 @@
             canvas.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, clientX: cr.left + 8, clientY: cr.top + 8, pointerId: 1, button: 0 }));
             assert(!state.selectedId, "клик по пустому месту закрывает окно");
 
+            var blueNode = document.querySelector('.nc-node[data-id="f-blue"]');
+            var blueRect = blueNode.getBoundingClientRect();
+            blueNode.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: blueRect.left + 24, clientY: blueRect.top + 16 }));
+            assert(document.querySelector(".nc-menu-title").textContent === "Выберите триггер", "правый клик по триггеру открывает выбор триггера");
+            var triggerNames = Array.prototype.map.call(document.querySelectorAll(".nc-menu-item"), function (button) { return button.textContent; });
+            assert(triggerNames.indexOf("Задача обновлена") !== -1, "в меню есть другие триггеры");
+            assert(triggerNames.indexOf("Ручной запуск") !== -1, "в меню есть ручной триггер");
+            assert(triggerNames.indexOf("Комментарий к задаче") === -1, "меню триггера не смешивает действия");
+            chooseMenu("Задача создана");
+            assert(fieldById("f-blue").componentType === "jira.issue.event.trigger:created", "триггер можно выбрать заново");
+
             canvas.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: cr.left + 300, clientY: cr.top + 500 }));
-            assert(state.fields.length === 6, "правый клик добавляет шаг");
+            assert(document.getElementById("nc-menu"), "правый клик по канвасу открывает меню");
+            assert(state.fields.length === 5, "меню не добавляет шаг само");
+            chooseMenu("Комментарий к задаче");
+            assert(state.fields.length === 6, "выбор в меню добавляет шаг");
 
             document.getElementById("nc-clear").click();
             assert(state.canOtherRuleTrigger === false, "флажок запуска из другого правила");
@@ -2965,6 +3278,7 @@
             window.__nc.flushSave();
             assert(calls.filter(function (call) { return call.method === "PUT"; }).length === 1, "повтор без правок не записывает правило");
             document.getElementById("nc-add").click();
+            chooseMenu("Комментарий к задаче");
             var addedStep = state.fields[state.fields.length - 1];
             var transitionStep = null;
             state.fields.forEach(function (field) {
