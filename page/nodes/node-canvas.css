@@ -500,6 +500,51 @@ body.nc-classic .nc-back {
     padding: 12px;
 }
 
+.nc-import {
+    position: fixed;
+    top: 56px;
+    right: 16px;
+    width: 320px;
+    background: #fff;
+    border: 1px solid #dfe1e6;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(9, 30, 66, 0.18);
+    z-index: 30;
+    padding: 12px;
+}
+
+.nc-import h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.nc-import p {
+    margin: 0 0 8px;
+    color: #6b778c;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.nc-import-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.nc-import-list {
+    max-height: 240px;
+    overflow: auto;
+}
+
+.nc-import-list button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 4px;
+}
+
 .nc-settings h3 {
     margin: 0 0 10px;
     font-size: 14px;

@@ -32,13 +32,14 @@ public class NodeCanvasServlet extends HttpServlet {
         String script = resource(urls, context, "node-canvas.js");
         String rest = context + "/rest/node-forms/1.0/node-schema";
         String classic = context + "/secure/AutomationGlobalAdminAction!default.jspa";
+        String source = context + "/rest/cb-automation/latest/project/GLOBAL/rule/export";
 
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
-        response.getWriter().write(page(css, script, rest, classic));
+        response.getWriter().write(page(css, script, rest, classic, source));
     }
 
-    private static String page(String css, String script, String rest, String classic) {
+    private static String page(String css, String script, String rest, String classic, String source) {
         return "<!DOCTYPE html>\n"
                 + "<html lang=\"ru\">\n"
                 + "<head>\n"
@@ -47,7 +48,7 @@ public class NodeCanvasServlet extends HttpServlet {
                 + "<link rel=\"stylesheet\" href=\"" + escape(css) + "\">\n"
                 + "</head>\n"
                 + "<body class=\"nc-nodes\">\n"
-                + "<div id=\"node-canvas-root\" data-rest=\"" + escape(rest) + "\" data-classic=\"" + escape(classic) + "\"></div>\n"
+                + "<div id=\"node-canvas-root\" data-rest=\"" + escape(rest) + "\" data-classic=\"" + escape(classic) + "\" data-import=\"" + escape(source) + "\"></div>\n"
                 + "<script src=\"" + escape(script) + "\"></script>\n"
                 + "</body>\n"
                 + "</html>\n";
