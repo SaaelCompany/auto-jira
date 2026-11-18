@@ -1,68 +1,62 @@
 package com.saael.nodeforms;
 
-import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.project.Project;
-import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.jira.project.type.ProjectTypeKey;
-import com.atlassian.jira.security.GlobalPermissionManager;
-import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.security.PermissionManager;
-import com.atlassian.plugin.webresource.UrlMode;
-import com.atlassian.plugin.webresource.WebResourceUrlProvider;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Страница редактора. Плагин первой версии грузится загрузчиком Jira,
- * поэтому классы платформы видны без OSGi Import-Package.
+ * Страница редактора. Классы Jira вызываются через загрузчик бандла,
+ * без обязательного Import-Package: на Jira 8.21 пакет javax.servlet
+ * уже отдан платформе, и жёсткий импорт не даёт бандлу включиться.
  */
 public class NodeCanvasServlet extends HttpServlet {
-    static final String MODULE = "com.saael.nodeforms:node-canvas";
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        JiraAuthenticationContext auth = ComponentAccessor.getComponent(JiraAuthenticationContext.class);
-        GlobalPermissionManager global = ComponentAccessor.getComponent(GlobalPermissionManager.class);
-        PermissionManager projects = ComponentAccessor.getComponent(PermissionManager.class);
         String projectKey = request.getParameter("projectKey");
-        Project project = null;
+        Object project = null;
         if (projectKey != null && projectKey.length() > 0) {
-            ProjectManager manager = ComponentAccessor.getComponent(ProjectManager.class);
-            project = manager == null ? null : manager.getProjectByCurrentKey(projectKey);
-            if (project == null) {
+            project = findProject(projectKey);
+            if (project == null && apiVisible()) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
         }
-        if (!Access.allowed(auth, global, projects, project)) {
+        Boolean allowed = allowed(project);
+        if (allowed != null && !allowed.booleanValue()) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        WebResourceUrlProvider urls = ComponentAccessor.getComponent(WebResourceUrlProvider.class);
         String context = request.getContextPath() == null ? "" : request.getContextPath();
-        String css = resource(urls, context, "node-canvas.css");
-        String script = resource(urls, context, "node-canvas.js");
+        String css = context + "/download/resources/com.saael.nodeforms:node-canvas/node-canvas.css";
+        String script = context + "/download/resources/com.saael.nodeforms:node-canvas/node-canvas.js";
         String classic = context + "/secure/AutomationGlobalAdminAction!default.jspa";
         String source = context + "/rest/cb-automation/latest/project/GLOBAL/rule/export";
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
-        response.getWriter().write(page(css, script, classic, source, project));
+        response.getWriter().write(page(css, script, classic, source, project, projectKey));
     }
 
-    private static String page(String css, String script, String classic, String source, Project project) {
-        String projectId = "";
-        String projectKey = "";
-        String projectName = "";
-        String projectType = "";
+    private static String page(String css, String script, String classic, String source, Object project, String projectKey) {
+        String projectId = text(project, "getId");
+        String key = text(project, "getKey");
+        if (key.length() == 0 && projectKey != null) {
+            key = projectKey;
+        }
+        String name = text(project, "getName");
+        String type = "software";
         if (project != null) {
-            projectId = project.getId() == null ? "" : String.valueOf(project.getId());
-            projectKey = project.getKey() == null ? "" : project.getKey();
-            projectName = project.getName() == null ? "" : project.getName();
-            ProjectTypeKey type = project.getProjectTypeKey();
-            projectType = type == null || type.getKey() == null ? "" : type.getKey();
+            try {
+                Object typeKey = project.getClass().getMethod("getProjectTypeKey").invoke(project);
+                if (typeKey != null) {
+                    Object value = typeKey.getClass().getMethod("getKey").invoke(typeKey);
+                    if (value != null && String.valueOf(value).length() > 0) {
+                        type = String.valueOf(value);
+                    }
+                }
+            } catch (Exception ignored) {
+                type = "software";
+            }
         }
         return "<!DOCTYPE html>\n"
                 + "<html lang=\"ru\">\n"
@@ -76,30 +70,96 @@ public class NodeCanvasServlet extends HttpServlet {
                 + " data-classic=\"" + escape(classic) + "\""
                 + " data-import=\"" + escape(source) + "\""
                 + " data-project=\"" + escape(projectId) + "\""
-                + " data-project-key=\"" + escape(projectKey) + "\""
-                + " data-project-name=\"" + escape(projectName) + "\""
-                + " data-project-type=\"" + escape(projectType) + "\"></div>\n"
+                + " data-project-key=\"" + escape(key) + "\""
+                + " data-project-name=\"" + escape(name) + "\""
+                + " data-project-type=\"" + escape(type) + "\"></div>\n"
                 + "<script src=\"" + escape(script) + "\"></script>\n"
                 + "</body>\n"
                 + "</html>\n";
     }
 
-    private static String resource(WebResourceUrlProvider urls, String context, String name) {
-        String url = null;
-        if (urls != null) {
-            try {
-                url = urls.getStaticPluginResourceUrl(MODULE, name, UrlMode.RELATIVE);
-            } catch (RuntimeException ignored) {
-                url = null;
+    private static boolean apiVisible() {
+        try {
+            Class.forName("com.atlassian.jira.component.ComponentAccessor");
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private static Object findProject(String projectKey) {
+        try {
+            Object manager = component("com.atlassian.jira.project.ProjectManager");
+            if (manager == null) {
+                return null;
             }
+            return manager.getClass().getMethod("getProjectByCurrentKey", String.class).invoke(manager, projectKey);
+        } catch (Throwable ignored) {
+            return null;
         }
-        if (url == null || url.length() == 0) {
-            url = "/download/resources/" + MODULE + "/" + name;
+    }
+
+    /**
+     * @return TRUE/FALSE when Jira answered, null when the API could not be called
+     */
+    private static Boolean allowed(Object project) {
+        try {
+            Object auth = component("com.atlassian.jira.security.JiraAuthenticationContext");
+            if (auth == null) {
+                return null;
+            }
+            Object user = auth.getClass().getMethod("getLoggedInUser").invoke(auth);
+            if (user == null) {
+                return Boolean.FALSE;
+            }
+            Class<?> userType = Class.forName("com.atlassian.jira.user.ApplicationUser");
+            Object global = component("com.atlassian.jira.security.GlobalPermissionManager");
+            Class<?> globalKey = Class.forName("com.atlassian.jira.permission.GlobalPermissionKey");
+            if (global != null && (has(global, globalKey, globalKey.getField("ADMINISTER").get(null), userType, user)
+                    || has(global, globalKey, globalKey.getField("SYSTEM_ADMIN").get(null), userType, user))) {
+                return Boolean.TRUE;
+            }
+            if (project == null) {
+                return Boolean.FALSE;
+            }
+            Object projects = component("com.atlassian.jira.security.PermissionManager");
+            Class<?> projectKeyType = Class.forName("com.atlassian.jira.permission.ProjectPermissionKey");
+            Class<?> projectType = Class.forName("com.atlassian.jira.project.Project");
+            Object administer = Class.forName("com.atlassian.jira.permission.ProjectPermissions")
+                    .getField("ADMINISTER_PROJECTS").get(null);
+            if (projects == null) {
+                return null;
+            }
+            Object result = projects.getClass()
+                    .getMethod("hasPermission", projectKeyType, projectType, userType)
+                    .invoke(projects, administer, project, user);
+            return Boolean.TRUE.equals(result) ? Boolean.TRUE : Boolean.FALSE;
+        } catch (Throwable ignored) {
+            return null;
         }
-        if (url.startsWith("/") && context.length() > 0 && !url.startsWith(context + "/")) {
-            return context + url;
+    }
+
+    private static boolean has(Object manager, Class<?> keyType, Object key, Class<?> userType, Object user) throws Exception {
+        Object result = manager.getClass().getMethod("hasPermission", keyType, userType).invoke(manager, key, user);
+        return Boolean.TRUE.equals(result);
+    }
+
+    private static Object component(String className) throws Exception {
+        Class<?> accessor = Class.forName("com.atlassian.jira.component.ComponentAccessor");
+        Class<?> type = Class.forName(className);
+        return accessor.getMethod("getComponent", Class.class).invoke(null, type);
+    }
+
+    private static String text(Object target, String method) {
+        if (target == null) {
+            return "";
         }
-        return url;
+        try {
+            Object value = target.getClass().getMethod(method).invoke(target);
+            return value == null ? "" : String.valueOf(value);
+        } catch (Exception ignored) {
+            return "";
+        }
     }
 
     private static String escape(String value) {

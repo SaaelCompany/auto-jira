@@ -1,9 +1,9 @@
-<atlassian-plugin key="com.saael.nodeforms" name="Редактор нод" plugins-version="1">
+<atlassian-plugin key="com.saael.nodeforms" name="Редактор нод" plugins-version="2">
     <plugin-info>
         <description><![CDATA[
             <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira и работает с теми же правилами.</p>
         ]]></description>
-        <version>1.0.7</version>
+        <version>1.0.8</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
@@ -86,7 +86,7 @@
         <resource type="download" name="plugin-logo-lite.png" location="images/plugin/plugin-logo-lite.png"/>
     </web-resource>
 
-    <web-section key="node-forms-section" name="Редактор нод" location="top_system_section" weight="40">
+    <web-section key="node-forms-section" name="Редактор нод" location="system.top.navigation.bar" weight="40">
         <label key="com.saael.nodeforms.section"/>
     </web-section>
 
@@ -98,7 +98,7 @@
         <label key="com.saael.nodeforms.issue"/>
     </web-section>
 
-    <web-item key="node-forms-item" name="Редактор нод" section="top_system_section/node-forms-section" weight="10">
+    <web-item key="node-forms-item" name="Редактор нод" section="system.top.navigation.bar/node-forms-section" weight="10">
         <label key="com.saael.nodeforms.menu"/>
         <link linkId="node-forms-admin">/plugins/servlet/node-forms</link>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>

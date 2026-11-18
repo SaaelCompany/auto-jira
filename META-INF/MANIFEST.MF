@@ -1,2 +1,13 @@
 Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Node editor
+Bundle-SymbolicName: com.saael.nodeforms
+Bundle-Version: 1.0.8
+Bundle-Vendor: Saael
+Bundle-Description: Node editor for the same Automation for Jira rules
+Atlassian-Plugin-Key: com.saael.nodeforms
+Bundle-ClassPath: .
+Import-Package: javax.servlet;resolution:=optional,
+ javax.servlet.http;resolution:=optional
+DynamicImport-Package: *
 
