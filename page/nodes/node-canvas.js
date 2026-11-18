@@ -502,7 +502,7 @@
 
     function markJiraPage() {
         var path = window.location.pathname || "";
-        if (!document.body || (path.indexOf("/secure/") < 0 && path.indexOf("/plugins/servlet/") < 0)) {
+        if (!document.body || (path.indexOf("/secure/") < 0 && path.indexOf("/plugins/servlet/") < 0 && path.indexOf("/download/resources/") < 0)) {
             return;
         }
         document.body.classList.add("nc-in-jira");
