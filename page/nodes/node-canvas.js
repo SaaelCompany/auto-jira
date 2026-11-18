@@ -178,6 +178,30 @@
         return kindLabel(field) + ": " + displayTitle(field);
     }
 
+    function detailText(field) {
+        var value = field.value || {};
+        var type = field.componentType || "";
+        if (type.indexOf("trigger") !== -1) {
+            return "Когда создаётся задача";
+        }
+        if (type === "jira.condition.container.block" || type === "jira.condition.if.block") {
+            return value.summary ? ("Условие: " + value.summary) : "Условие ветки";
+        }
+        if (type === "jira.issue.assign") {
+            return "Исполнитель: " + (value.assignee || "не выбран");
+        }
+        if (type === "jira.issue.comment") {
+            return "«" + ((value.comment || "").trim() || "текст комментария") + "»";
+        }
+        if (type === "jira.issue.transition") {
+            return "Новый статус: " + (value.statusName || "не выбран");
+        }
+        if (type === "jira.jql.condition") {
+            return typeof value === "string" ? value : (value.jql || "JQL не задан");
+        }
+        return "";
+    }
+
     function seed() {
         return {
             name: "Назначение ошибки",
@@ -190,16 +214,16 @@
                 {
                     id: "f-blue", index: 1, title: "Задача создана",
                     componentType: "jira.issue.event.trigger:created", component: "TRIGGER", schemaVersion: 1,
-                    color: "blue", headerSlot: "index", x: 36, y: 36,
+                    color: "blue", headerSlot: "index", x: 28, y: 28,
                     value: { eventKey: "jira:issue_created", issueEvent: "issue_created" },
                     conditions: [],
-                    options: [{ id: "o-med", label: "Создана", kind: "next" }]
+                    options: [{ id: "o-med", label: "Дальше", kind: "next" }]
                 },
                 {
                     id: "f-purple", index: 2, title: "Если / иначе",
                     componentType: "jira.condition.container.block", component: "CONDITION", schemaVersion: 1,
-                    color: "purple", headerSlot: "index", x: 56, y: 220,
-                    value: { summary: "тип задачи: Ошибка" },
+                    color: "purple", headerSlot: "index", x: 28, y: 210,
+                    value: { summary: "тип задачи = Ошибка" },
                     conditions: [],
                     options: [
                         { id: "o-main", label: "Если: тип = Ошибка", kind: "child" },
@@ -209,32 +233,26 @@
                 {
                     id: "f-orange", index: 4, title: "Назначить задачу",
                     componentType: "jira.issue.assign", component: "ACTION", schemaVersion: 1,
-                    color: "orange", headerSlot: "swatch", x: 400, y: 40,
+                    color: "orange", headerSlot: "swatch", x: 360, y: 28,
                     value: { assignType: "SPECIFY_USER", assignee: "автор правила" },
                     conditions: [],
-                    options: [
-                        { id: "o-doc", label: "Исполнителю", kind: "next" },
-                        { id: "o-nurse", label: "Дальше", kind: "next" }
-                    ]
+                    options: [{ id: "o-doc", label: "Дальше", kind: "next" }]
                 },
                 {
-                    id: "f-teal", index: 3, title: "Комментарий",
+                    id: "f-teal", index: 3, title: "Комментарий к задаче",
                     componentType: "jira.issue.comment", component: "ACTION", schemaVersion: 1,
-                    color: "teal", headerSlot: "index", x: 690, y: 86,
-                    value: { comment: "Ошибка назначена", publicComment: true, sendNotifications: true },
+                    color: "teal", headerSlot: "index", x: 700, y: 28,
+                    value: { comment: "Ошибка назначена исполнителю", publicComment: true, sendNotifications: true },
                     conditions: [],
-                    options: [{ id: "o-1", label: "Дальше", kind: "next" }]
+                    options: [{ id: "o-1", label: "Конец ветки", kind: "next" }]
                 },
                 {
                     id: "f-green", index: 5, title: "Перевести задачу",
                     componentType: "jira.issue.transition", component: "ACTION", schemaVersion: 1,
-                    color: "green", headerSlot: "swatch", x: 530, y: 310,
+                    color: "green", headerSlot: "swatch", x: 360, y: 250,
                     value: { statusName: "Готово" },
                     conditions: [],
-                    options: [
-                        { id: "o-zam", label: "Готово", kind: "next" },
-                        { id: "o-head", label: "Отменено", kind: "next" }
-                    ]
+                    options: [{ id: "o-head", label: "Конец ветки", kind: "next" }]
                 }
             ],
             links: [
@@ -616,6 +634,10 @@
         cond.dataset.role = "cond";
         cond.textContent = conditionText(field);
         body.appendChild(cond);
+        var detail = detailText(field);
+        if (detail) {
+            body.appendChild(el("div", "nc-detail", detail));
+        }
         field.options.forEach(function (opt) {
             body.appendChild(renderOption(field, opt, color));
         });
@@ -628,12 +650,8 @@
     function renderOption(field, opt, color) {
         var wrap = document.createDocumentFragment();
         var row = el("div", "nc-opt");
-        var input = document.createElement("input");
-        input.type = "text";
-        input.value = opt.label;
-        input.placeholder = "Выход";
+        var input = el("span", "nc-opt-label", opt.label || "Дальше");
         input.dataset.optionId = opt.id;
-        input.setAttribute("aria-label", "Выход шага");
         var plus = el("button", "nc-plus", "+");
         plus.type = "button";
         plus.title = "Добавить ветку";

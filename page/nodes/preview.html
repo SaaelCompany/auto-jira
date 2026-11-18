@@ -5,7 +5,20 @@
     <title>Тест — редактор нод</title>
     <link rel="stylesheet" href="node-canvas.css">
 </head>
-<body class="nc-nodes">
+<body class="nc-nodes jira-frame">
+    <header class="jira-top">
+        <div class="jira-logo"><span class="jira-mark"></span> Jira</div>
+        <nav class="jira-nav">
+            <span>Панели</span>
+            <span>Проекты</span>
+            <span>Задачи</span>
+            <span class="is-on">Редактор нод</span>
+        </nav>
+        <span class="jira-spacer"></span>
+        <button class="jira-create" type="button">Создать</button>
+        <span class="jira-user">АС</span>
+        <span class="jira-gear">⚙</span>
+    </header>
     <div id="node-canvas-root" data-classic="/secure/AutomationGlobalAdminAction!default.jspa"></div>
     <script src="node-canvas.js"></script>
 </body>

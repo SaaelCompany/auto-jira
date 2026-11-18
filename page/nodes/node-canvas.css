@@ -385,16 +385,131 @@ body.nc-classic .nc-back {
     margin-top: 6px;
 }
 
-.nc-opt input {
+.nc-detail {
+    font-size: 13px;
+    line-height: 1.35;
+    color: #172b4d;
+    background: #fafbfc;
+    border: 1px solid #ebecf0;
+    border-radius: 3px;
+    padding: 6px 8px;
+    margin: 2px 0 6px;
+}
+
+.nc-opt input,
+.nc-opt-label {
     flex: 1;
     min-width: 0;
     height: 30px;
-    border: 1px solid #dfe1e6;
+    border: 1px solid transparent;
     border-radius: 3px;
-    padding: 0 8px;
+    padding: 0 2px;
     font-size: 13px;
     color: #172b4d;
+    background: transparent;
+    display: flex;
+    align-items: center;
+}
+
+.nc-opt input {
+    border-color: #dfe1e6;
+    padding: 0 8px;
     background: #fff;
+}
+
+body.jira-frame {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+
+body.jira-frame #node-canvas-root {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+}
+
+.jira-top {
+    height: 56px;
+    background: #fff;
+    border-bottom: 1px solid #dfe1e6;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 18px;
+    flex: none;
+}
+
+.jira-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #172b4d;
+    font-size: 18px;
+}
+
+.jira-mark {
+    width: 22px;
+    height: 22px;
+    background: #0052cc;
+    border-radius: 4px;
+    position: relative;
+}
+
+.jira-mark:after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    transform: rotate(45deg);
+}
+
+.jira-nav {
+    display: flex;
+    gap: 16px;
+    color: #42526e;
+    font-size: 14px;
+}
+
+.jira-nav span.is-on {
+    color: #0052cc;
+    font-weight: 600;
+}
+
+.jira-spacer {
+    margin-left: auto;
+}
+
+.jira-create {
+    background: #0052cc;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    height: 32px;
+    padding: 0 12px;
+    font-size: 14px;
+}
+
+.jira-user {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #6554c0;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.jira-gear {
+    color: #42526e;
+    font-size: 18px;
 }
 
 .nc-plus {
