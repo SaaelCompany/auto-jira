@@ -2,11 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Node editor
 Bundle-SymbolicName: com.saael.nodeforms
-Bundle-Version: 1.0.5
+Bundle-Version: 1.0.6
 Bundle-Vendor: Saael
 Bundle-Description: Node editor. Installs next to Automation for Jira an
  d edits the same rules.
 Atlassian-Plugin-Key: com.saael.nodeforms
 Bundle-ClassPath: .
-Import-Package: javax.servlet.http
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: javax.servlet,javax.servlet.http
