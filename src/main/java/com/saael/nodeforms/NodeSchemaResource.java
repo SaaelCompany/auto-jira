@@ -1,5 +1,7 @@
-package com.codebarrel.jira.plugin.automation.rest;
+package com.saael.nodeforms;
 
+import com.atlassian.jira.security.GlobalPermissionManager;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
@@ -18,31 +20,35 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Хранит схему нод (вопросы, варианты и связи) в настройках плагина.
- * Значение режется на части: в Jira 8 строка propertystring ограничена 255 символами.
+ * Схема нод хранится в глобальных настройках Jira под собственным ключом.
+ * Строка режется на части: в Jira 8 колонка propertystring ограничена 255 символами.
+ * Таблицы Automation for Jira не читаются и не изменяются.
  */
 @Path("/node-schema")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Scanned
 public class NodeSchemaResource {
-    static final String KEY = "com.codebarrel.automation.node.schema";
+    static final String KEY = "com.saael.nodeforms.schema";
     static final int CHUNK = 180;
     static final int MAX = 400000;
 
     private final PluginSettingsFactory pluginSettingsFactory;
-    private final CurrentUserPermissionHelper permissionHelper;
+    private final JiraAuthenticationContext authenticationContext;
+    private final GlobalPermissionManager permissionManager;
 
     @Inject
     public NodeSchemaResource(@ComponentImport PluginSettingsFactory pluginSettingsFactory,
-                              CurrentUserPermissionHelper permissionHelper) {
+                              @ComponentImport JiraAuthenticationContext authenticationContext,
+                              @ComponentImport GlobalPermissionManager permissionManager) {
         this.pluginSettingsFactory = pluginSettingsFactory;
-        this.permissionHelper = permissionHelper;
+        this.authenticationContext = authenticationContext;
+        this.permissionManager = permissionManager;
     }
 
     @GET
     public Response get() {
-        if (!allowed()) {
+        if (!Access.allowed(authenticationContext, permissionManager)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
         String json = read(settings());
@@ -54,7 +60,7 @@ public class NodeSchemaResource {
 
     @PUT
     public Response put(InputStream body) {
-        if (!allowed()) {
+        if (!Access.allowed(authenticationContext, permissionManager)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
         final String json;
@@ -74,10 +80,6 @@ public class NodeSchemaResource {
         }
         write(settings(), json);
         return Response.ok(json, MediaType.APPLICATION_JSON_TYPE).build();
-    }
-
-    private boolean allowed() {
-        return permissionHelper.isJiraAdmin() || permissionHelper.isAnyProjectAdmin();
     }
 
     private PluginSettings settings() {

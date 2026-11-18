@@ -336,6 +336,7 @@
         sub.appendChild(status);
 
         var help = el("p", "nc-help", HELP);
+        var note = el("p", "nc-note", "Бесплатный плагин ставится рядом с Automation for Jira и не изменяет его правила.");
         var scroll = el("div", "nc-scroll");
         var canvas = el("div", "nc-canvas");
         canvas.id = "nc-canvas";
@@ -354,10 +355,14 @@
         app.appendChild(top);
         app.appendChild(sub);
         app.appendChild(help);
+        app.appendChild(note);
         app.appendChild(scroll);
         root.appendChild(app);
 
-        if (!document.getElementById("automation-admin-container")) {
+        var classicHref = root.getAttribute("data-classic") || "";
+        if (classicHref) {
+            classic.textContent = "Automation for Jira";
+        } else if (!document.getElementById("automation-admin-container")) {
             classic.style.display = "none";
         }
         if (!document.getElementById("nc-back")) {
@@ -387,6 +392,10 @@
             addField(80 + (state.fields.length % 5) * 28, 48 + (state.fields.length % 6) * 36);
         });
         classic.addEventListener("click", function () {
+            if (classicHref) {
+                (window.top || window).location.href = classicHref;
+                return;
+            }
             document.body.classList.remove("nc-nodes");
             document.body.classList.add("nc-classic");
             var container = document.getElementById("automation-admin-container");
