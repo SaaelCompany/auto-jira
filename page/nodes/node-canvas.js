@@ -501,7 +501,8 @@
     }
 
     function markJiraPage() {
-        if (!document.body || !/\/secure\//.test(window.location.pathname || "")) {
+        var path = window.location.pathname || "";
+        if (!document.body || (path.indexOf("/secure/") < 0 && path.indexOf("/plugins/servlet/") < 0)) {
             return;
         }
         document.body.classList.add("nc-in-jira");
