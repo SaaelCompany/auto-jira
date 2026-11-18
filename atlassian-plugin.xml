@@ -3,7 +3,7 @@
         <description><![CDATA[
             <p>Бесплатный редактор правил. Ставится рядом с Automation for Jira и записывает изменения в те же правила.</p>
         ]]></description>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
