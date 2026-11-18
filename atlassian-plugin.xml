@@ -1,7 +1,7 @@
 <atlassian-plugin key="com.saael.nodeforms" name="Редактор нод" plugins-version="2">
     <plugin-info>
         <description><![CDATA[
-            <p>Бесплатный редактор связанных полей. Ставится рядом с Automation for Jira и не изменяет его правила.</p>
+            <p>Бесплатный редактор правил. Ставится рядом с Automation for Jira и записывает изменения в те же правила.</p>
         ]]></description>
         <version>1.0.0</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>

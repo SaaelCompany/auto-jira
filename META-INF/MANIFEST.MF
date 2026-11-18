@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Bundle-Description: Free linked-field editor. Installs next to Automatio
- n for Jira and does not change its rules.
+Bundle-Description: Free rule editor. Installs next to Automation for
+ Jira and writes changes into the same rules.
 Bundle-SymbolicName: com.saael.nodeforms
 Built-By: root
 Bnd-LastModified: 1649246448604
