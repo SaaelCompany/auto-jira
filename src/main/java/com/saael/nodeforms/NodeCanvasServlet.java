@@ -23,7 +23,18 @@ public class NodeCanvasServlet extends HttpServlet {
     static final String MODULE = "com.saael.nodeforms:node-canvas";
 
     @Override
+    public void init() {
+        RuleReplay.start();
+    }
+
+    @Override
+    public void destroy() {
+        RuleReplay.stop();
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        RuleReplay.start();
         JiraAuthenticationContext auth = ComponentAccessor.getComponent(JiraAuthenticationContext.class);
         GlobalPermissionManager global = ComponentAccessor.getComponent(GlobalPermissionManager.class);
         PermissionManager projects = ComponentAccessor.getComponent(PermissionManager.class);
