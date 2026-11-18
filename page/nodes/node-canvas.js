@@ -61,7 +61,7 @@
         { type: "jira.issue.delete.comment", component: "ACTION", label: "Удалить комментарий", kind: "Действие", color: "orange", value: {} },
         { type: "jira.issue.deleteattachment", component: "ACTION", label: "Удалить вложение", kind: "Действие", color: "orange", value: {} },
         { type: "jira.issue.outgoing.email", component: "ACTION", label: "Отправить письмо", kind: "Действие", color: "teal", value: {} },
-        { type: "jira.issue.outgoing.webhook", component: "ACTION", label: "Исходящий webhook", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.outgoing.webhook", component: "ACTION", label: "Отправить веб-запрос", kind: "Действие", color: "teal", value: { url: "", method: "POST", headers: [], contentType: "custom", customBody: "", responseEnabled: false } },
         { type: "jira.sd.create.request", component: "ACTION", label: "Создать заявку", kind: "Действие", color: "teal", value: {} },
         { type: "jira.sd.add.customer", component: "ACTION", label: "Добавить клиента", kind: "Действие", color: "teal", value: {} },
         { type: "jira.worklog.add", component: "ACTION", label: "Добавить учёт труда", kind: "Действие", color: "teal", value: {} },
@@ -180,6 +180,83 @@
         return "teal";
     }
 
+    var FIELD_NAMES = {
+        assignee: "Исполнитель",
+        reporter: "Автор",
+        summary: "Тема",
+        description: "Описание",
+        issuetype: "Тип задачи",
+        status: "Статус",
+        priority: "Приоритет",
+        resolution: "Решение",
+        labels: "Метки",
+        components: "Компоненты",
+        project: "Проект",
+        duedate: "Срок исполнения",
+        parent: "Родитель"
+    };
+    var COMPARISON_LABEL = {
+        EQUALS: "равно",
+        NOT_EQUAL: "не равно",
+        NOT_EQUALS: "не равно",
+        EMPTY: "пусто",
+        NOT_EMPTY: "не пусто",
+        STARTS_WITH: "начинается с",
+        ENDS_WITH: "заканчивается на",
+        CONTAINS: "содержит",
+        NOT_CONTAIN: "не содержит",
+        GREATER_THAN: "больше",
+        LESS_THAN: "меньше"
+    };
+    var TRIGGER_DETAIL = {
+        "jira.issue.event.trigger:created": "Запускается, когда создаётся задача",
+        "jira.issue.event.trigger:updated": "Запускается, когда задача обновляется",
+        "jira.issue.event.trigger:deleted": "Запускается, когда задача удаляется",
+        "jira.issue.event.trigger:commented": "Запускается, когда добавляют комментарий",
+        "jira.issue.event.trigger:transitioned": "Запускается, когда меняется статус",
+        "jira.issue.event.trigger:assigned": "Запускается, когда меняется исполнитель",
+        "jira.issue.event.trigger:moved": "Запускается, когда задачу перемещают",
+        "jira.incoming.webhook": "Запускается входящим веб-запросом",
+        "jira.jql.scheduled": "Запускается по расписанию",
+        "jira.manual.trigger.issue": "Запускается вручную"
+    };
+    var labelCache = { fields: {}, users: {}, started: false };
+
+    function fieldLabel(value) {
+        var selected = value.selectedField || {};
+        if (selected.name) {
+            return selected.name;
+        }
+        var id = selected.value || value.selectedFieldType || "поле";
+        return labelCache.fields[id] || FIELD_NAMES[id] || id;
+    }
+
+    function valueLabel(raw) {
+        if (raw == null || raw === "") {
+            return "";
+        }
+        if (typeof raw === "string" || typeof raw === "number") {
+            var text = String(raw);
+            return labelCache.users[text] || text;
+        }
+        if (raw.displayName) {
+            return raw.displayName;
+        }
+        if (raw.name) {
+            return raw.name;
+        }
+        if (raw.label) {
+            return raw.label;
+        }
+        if (raw.value != null && raw.value !== "") {
+            return valueLabel(raw.value);
+        }
+        if (Array.isArray(raw.multiValue)) {
+            return raw.multiValue.map(valueLabel).filter(Boolean).join(", ");
+        }
+        return "";
+    }
+
     function conditionText(field) {
         var value = field.value || {};
         var type = field.componentType || "";
@@ -188,13 +265,16 @@
             return "если JQL: " + (jql || "…");
         }
         if (type === "jira.issue.condition") {
-            var selected = value.selectedField || {};
-            var name = selected.name || selected.value || "поле";
-            var compared = "";
-            if (value.compareValue && value.compareValue.value) {
-                compared = String(value.compareValue.value);
+            var name = fieldLabel(value);
+            var op = COMPARISON_LABEL[value.comparison] || "";
+            var compared = valueLabel(value.compareValue);
+            if (value.comparison === "EMPTY" || value.comparison === "NOT_EMPTY") {
+                return "если " + name + (op ? " " + op : "");
             }
-            return "если " + name + (compared ? ": " + compared : "");
+            return "если " + name + (op ? " " + op : "") + (compared ? " " + compared : "");
+        }
+        if (type === "jira.issue.outgoing.webhook") {
+            return (value.method || "POST") + " " + (value.url || "адрес не задан");
         }
         if (type === "jira.condition.container.block" || type === "jira.condition.if.block") {
             return "если " + (value.summary || "условие ветки");
@@ -226,8 +306,20 @@
     function detailText(field) {
         var value = field.value || {};
         var type = field.componentType || "";
-        if (type.indexOf("trigger") !== -1) {
-            return "Когда создаётся задача";
+        if (type.indexOf("trigger") !== -1 || TRIGGER_DETAIL[type]) {
+            return TRIGGER_DETAIL[type] || ("Запускается: " + displayTitle(field));
+        }
+        if (type === "jira.issue.outgoing.webhook") {
+            if (value.contentType === "custom") {
+                return "Своё тело запроса";
+            }
+            if (value.contentType === "issue" || value.sendIssue) {
+                return "Тело: данные задачи";
+            }
+            return "Заголовки сохраняются";
+        }
+        if (type === "jira.issue.condition") {
+            return "";
         }
         if (type === "jira.condition.container.block" || type === "jira.condition.if.block") {
             return value.summary ? ("Условие: " + value.summary) : "Условие ветки";
@@ -1188,7 +1280,59 @@
                 return area;
             }));
         }
-        if (type === "jira.issue.condition" || type === "jira.condition.container.block" || type === "jira.condition.if.block") {
+        if (type === "jira.issue.condition") {
+            panel.appendChild(settingField("Поле", function () {
+                var input = document.createElement("input");
+                input.type = "text";
+                input.value = (value.selectedField && value.selectedField.value) || "";
+                input.addEventListener("input", function () {
+                    value.selectedField = value.selectedField || { type: "ID" };
+                    value.selectedField.value = input.value;
+                    scheduleSave();
+                });
+                return input;
+            }));
+            panel.appendChild(settingField("Сравнение", function () {
+                var select = document.createElement("select");
+                Object.keys(COMPARISON_LABEL).forEach(function (key) {
+                    if (key === "NOT_EQUALS") {
+                        return;
+                    }
+                    var option = document.createElement("option");
+                    option.value = key;
+                    option.textContent = COMPARISON_LABEL[key];
+                    option.selected = value.comparison === key;
+                    select.appendChild(option);
+                });
+                if (value.comparison && !COMPARISON_LABEL[value.comparison]) {
+                    var current = document.createElement("option");
+                    current.value = value.comparison;
+                    current.textContent = value.comparison;
+                    current.selected = true;
+                    select.appendChild(current);
+                }
+                select.addEventListener("change", function () {
+                    value.comparison = select.value;
+                    scheduleSave();
+                    render();
+                });
+                return select;
+            }));
+            if (value.comparison !== "EMPTY" && value.comparison !== "NOT_EMPTY") {
+                panel.appendChild(settingField("Значение", function () {
+                    var input = document.createElement("input");
+                    input.type = "text";
+                    input.value = valueLabel(value.compareValue);
+                    input.addEventListener("input", function () {
+                        value.compareValue = value.compareValue || { type: "ID" };
+                        value.compareValue.value = input.value;
+                        scheduleSave();
+                    });
+                    return input;
+                }));
+            }
+        }
+        if (type === "jira.condition.container.block" || type === "jira.condition.if.block") {
             panel.appendChild(settingField("Условие", function () {
                 var input = document.createElement("input");
                 input.type = "text";
@@ -1295,7 +1439,7 @@
             }));
         }
         if (type === "jira.incoming.webhook" || type === "jira.issue.outgoing.webhook") {
-            panel.appendChild(settingField("URL webhook", function () {
+            panel.appendChild(settingField("URL", function () {
                 var input = document.createElement("input");
                 input.type = "text";
                 input.value = value.url || value.webhookUrl || "";
@@ -1305,7 +1449,77 @@
                 });
                 return input;
             }));
-            panel.appendChild(el("p", "nc-menu-hint", "Это тот же тип, что в Automation for Jira. Секрет, заголовки и прочие поля правила не стираются."));
+        }
+        if (type === "jira.issue.outgoing.webhook") {
+            panel.appendChild(settingField("Метод", function () {
+                var select = document.createElement("select");
+                ["GET", "POST", "PUT", "PATCH", "DELETE"].forEach(function (method) {
+                    var option = document.createElement("option");
+                    option.value = method;
+                    option.textContent = method;
+                    option.selected = (value.method || "POST") === method;
+                    select.appendChild(option);
+                });
+                select.addEventListener("change", function () {
+                    value.method = select.value;
+                    scheduleSave();
+                });
+                return select;
+            }));
+            panel.appendChild(settingField("Тело", function () {
+                var select = document.createElement("select");
+                [["empty", "Пустое"], ["issue", "Данные задачи"], ["custom", "Свои данные"]].forEach(function (pair) {
+                    var option = document.createElement("option");
+                    option.value = pair[0];
+                    option.textContent = pair[1];
+                    option.selected = (value.contentType || (value.sendIssue ? "issue" : "empty")) === pair[0];
+                    select.appendChild(option);
+                });
+                select.addEventListener("change", function () {
+                    value.contentType = select.value;
+                    scheduleSave();
+                    render();
+                });
+                return select;
+            }));
+            if ((value.contentType || "") === "custom" || typeof value.customBody === "string") {
+                panel.appendChild(settingField("Свои данные", function () {
+                    var area = document.createElement("textarea");
+                    area.value = value.customBody || "";
+                    area.addEventListener("input", function () {
+                        value.customBody = area.value;
+                        scheduleSave();
+                    });
+                    return area;
+                }));
+            }
+            if (Array.isArray(value.headers)) {
+                value.headers.forEach(function (header) {
+                    panel.appendChild(settingField(header.name || "Заголовок", function () {
+                        var input = document.createElement("input");
+                        input.type = "text";
+                        input.value = header.value || "";
+                        input.addEventListener("input", function () {
+                            header.value = input.value;
+                            scheduleSave();
+                        });
+                        return input;
+                    }));
+                });
+            }
+            var wait = el("label", "nc-check");
+            var waitInput = document.createElement("input");
+            waitInput.type = "checkbox";
+            waitInput.checked = !!value.responseEnabled;
+            wait.appendChild(waitInput);
+            wait.appendChild(document.createTextNode("Ждать ответ веб-запроса"));
+            waitInput.addEventListener("change", function () {
+                value.responseEnabled = waitInput.checked;
+                scheduleSave();
+            });
+            var waitWrap = el("div", "nc-field");
+            waitWrap.appendChild(wait);
+            panel.appendChild(waitWrap);
         }
         if (type === "jira.incoming.webhook") {
             panel.appendChild(settingField("JQL", function () {
@@ -1895,6 +2109,11 @@
         };
     }
 
+    function isSideBranch(comp) {
+        var type = (comp && comp.type) || "";
+        return type === "jira.condition.container.block" || type === "jira.condition.if.block" || type === "jira.condition.else.block" || type === "jira.issue.related";
+    }
+
     function placeList(list, x, y, bag) {
         var first = null;
         var prev = null;
@@ -1912,10 +2131,11 @@
             }
             var kids = comp.children || [];
             var childY = yPos;
+            var linear = kids.length === 1 && !isSideBranch(comp) && !isSideBranch(kids[0]);
             kids.forEach(function (child) {
-                var opt = { id: uid("o"), label: childLabel(child), kind: "child" };
+                var opt = { id: uid("o"), label: linear ? "Дальше" : childLabel(child), kind: "child" };
                 node.options.push(opt);
-                var placed = placeList([child], x + 360, childY, bag);
+                var placed = placeList([child], linear ? x : x + 360, linear ? yPos + 170 : childY, bag);
                 if (placed.first) {
                     bag.links.push({ id: uid("l"), fromFieldId: node.id, fromOptionId: opt.id, toFieldId: placed.first.id });
                 }
@@ -2047,6 +2267,52 @@
             }
         }
         render();
+        loadJiraNames();
+    }
+
+    function loadJiraNames() {
+        var base = jiraContext();
+        if (base == null || labelCache.started || !window.fetch) {
+            return;
+        }
+        labelCache.started = true;
+        fetch(base + "/rest/api/2/field", { credentials: "same-origin", headers: { Accept: "application/json" } })
+            .then(function (response) { return response.ok ? response.json() : []; })
+            .then(function (list) {
+                (list || []).forEach(function (item) {
+                    if (item && item.id && item.name) {
+                        labelCache.fields[item.id] = item.name;
+                    }
+                });
+                if (state && state.view !== "library") {
+                    render();
+                }
+            })
+            .catch(function () { /* имена полей остаются идентификаторами */ });
+        var seen = {};
+        (state.fields || []).forEach(function (field) {
+            var value = field.value || {};
+            var selected = (value.selectedField && value.selectedField.value) || "";
+            if (value.selectedFieldType !== "user" && selected !== "assignee" && selected !== "reporter") {
+                return;
+            }
+            var key = value.compareValue && value.compareValue.value;
+            if (!key || seen[key]) {
+                return;
+            }
+            seen[key] = true;
+            fetch(base + "/rest/api/2/user?key=" + encodeURIComponent(key), { credentials: "same-origin", headers: { Accept: "application/json" } })
+                .then(function (response) { return response.ok ? response.json() : null; })
+                .then(function (user) {
+                    if (user && user.displayName) {
+                        labelCache.users[key] = user.displayName;
+                        if (state && state.view !== "library") {
+                            render();
+                        }
+                    }
+                })
+                .catch(function () { /* имя пользователя остаётся ключом */ });
+        });
     }
 
     function mapReplacements(sent, saved, map) {
@@ -3129,6 +3395,60 @@
             var hit = document.querySelector('.nc-hit[data-link-id="' + state.links[state.links.length - 1].id + '"]');
             hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
             assert(state.links.length === before, "клик по линии отвязывает");
+
+            window.__nc.importRules({
+                cloud: false,
+                rules: [{
+                    id: 7,
+                    name: "Рассылка",
+                    state: "ENABLED",
+                    trigger: {
+                        id: "tr",
+                        component: "TRIGGER",
+                        type: "jira.issue.event.trigger:assigned",
+                        value: { issueEvent: "issue_assigned" },
+                        children: [],
+                        conditions: []
+                    },
+                    components: [{
+                        id: "c1",
+                        component: "CONDITION",
+                        type: "jira.issue.condition",
+                        value: {
+                            selectedField: { type: "ID", value: "assignee" },
+                            selectedFieldType: "user",
+                            comparison: "EQUALS",
+                            compareValue: { type: "ID", value: "JIRAUSER10119" }
+                        },
+                        conditions: [],
+                        children: [{
+                            id: "wh",
+                            component: "ACTION",
+                            type: "jira.issue.outgoing.webhook",
+                            value: {
+                                url: "https://example.test/hook",
+                                method: "POST",
+                                contentType: "custom",
+                                customBody: "{\"ok\":true}",
+                                headers: [{ id: "h1", name: "Authorization", value: "Bearer secret" }],
+                                responseEnabled: false
+                            },
+                            children: [],
+                            conditions: []
+                        }]
+                    }]
+                }]
+            });
+            var condNode = fieldById("c1");
+            var hookNode = fieldById("wh");
+            assert(condNode && hookNode && Math.abs(hookNode.x - condNode.x) < 8 && hookNode.y > condNode.y, "веб-запрос стоит следом за условием");
+            var shown = Array.prototype.map.call(document.querySelectorAll(".nc-cond"), function (node) { return node.textContent; }).join(" | ");
+            assert(shown.indexOf("Исполнитель равно JIRAUSER10119") !== -1, "условие поля: " + shown);
+            assert(shown.indexOf("POST https://example.test/hook") !== -1, "веб-запрос: " + shown);
+            assert(shown.indexOf("Когда создаётся задача") === -1, "триггер назначения не подписан как создание");
+            var round = window.__nc.buildSharedRule();
+            assert(round.components[0].children[0].type === "jira.issue.outgoing.webhook", "веб-запрос остаётся вложенным шагом");
+            assert(round.components[0].children[0].value.headers[0].value === "Bearer secret", "заголовок веб-запроса на месте");
 
             window.__nc.importRules({
                 cloud: false,

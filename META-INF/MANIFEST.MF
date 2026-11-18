@@ -2,13 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Niout Auto to Jira
 Bundle-SymbolicName: com.saael.nodeforms
-Bundle-Version: 1.0.14
+Bundle-Version: 1.0.15
 Bundle-Vendor: Saael
 Bundle-Description: Node editor for the same Automation for Jira rules
 Atlassian-Plugin-Key: com.saael.nodeforms
 Bundle-ClassPath: .
 Import-Package: com.atlassian.plugin.hostcontainer,com.atlassian.plugin.
  osgi.external,com.atlassian.plugin.osgi.factory,com.atlassian.plugin.os
- gi.bridge.external
+ gi.bridge.external,javax.servlet;resolution:=optional,javax.servlet.htt
+ p;resolution:=optional
 Created-By: 21.0.13.0.3 (Ubuntu)
 

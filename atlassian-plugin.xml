@@ -3,7 +3,7 @@
         <description><![CDATA[
             <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira и работает с теми же правилами.</p>
         ]]></description>
-        <version>1.0.14</version>
+        <version>1.0.15</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
@@ -12,8 +12,8 @@
         <param name="vendor-logo">images/plugin/vendor-logo.png</param>
         <param name="atlassian-data-center-status">compatible</param>
         <param name="atlassian-data-center-compatible">true</param>
-        <param name="configure.url">/download/resources/com.saael.nodeforms:node-canvas/index.html</param>
-        <param name="post.install.url">/download/resources/com.saael.nodeforms:node-canvas/index.html</param>
+        <param name="configure.url">/plugins/servlet/niout-automation</param>
+        <param name="post.install.url">/plugins/servlet/niout-automation</param>
     </plugin-info>
 
     <resource type="i18n" name="i18n" location="com/saael/nodeforms/i18n"/>
@@ -26,19 +26,21 @@
         <resource type="download" name="node-canvas.js" location="page/nodes/node-canvas.js"/>
     </web-resource>
 
-    <sitemesh key="node-forms-decoration" name="Niout Auto to Jira" path="/download/resources/com.saael.nodeforms"/>
-
     <web-section key="node-forms-section" name="Niout Auto to Jira" location="top_system_section" weight="40">
         <label key="com.saael.nodeforms.section"/>
     </web-section>
 
     <web-item key="node-forms-item" name="Автоматизация" section="top_system_section/node-forms-section" weight="10">
         <label key="com.saael.nodeforms.menu"/>
-        <link linkId="node-forms-admin">/download/resources/com.saael.nodeforms:node-canvas/index.html</link>
+        <link linkId="node-forms-admin">/plugins/servlet/niout-automation</link>
     </web-item>
 
     <web-item key="node-forms-project" name="Автоматизация" section="atl.jira.proj.config/projectgroup4" weight="500">
         <label key="com.saael.nodeforms.project"/>
-        <link linkId="node-forms-project">/download/resources/com.saael.nodeforms:node-canvas/index.html?projectKey=$projectKeyEncoded</link>
+        <link linkId="node-forms-project">/plugins/servlet/niout-automation?projectKey=$projectKeyEncoded</link>
     </web-item>
+
+    <servlet key="node-forms-page" name="Niout Auto to Jira" class="com.saael.nodeforms.NodePageServlet">
+        <url-pattern>/niout-automation</url-pattern>
+    </servlet>
 </atlassian-plugin>
