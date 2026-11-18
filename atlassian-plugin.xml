@@ -1,9 +1,9 @@
-<atlassian-plugin key="com.saael.nodeforms" name="Редактор нод" plugins-version="2">
+<atlassian-plugin key="com.saael.nodeforms" name="Niout Auto to Jira" plugins-version="2">
     <plugin-info>
         <description><![CDATA[
             <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira и работает с теми же правилами.</p>
         ]]></description>
-        <version>1.0.11</version>
+        <version>1.0.12</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
@@ -24,24 +24,26 @@
         <resource type="download" name="node-canvas.js" location="page/nodes/node-canvas.js"/>
     </web-resource>
 
-    <web-section key="node-forms-section" name="Редактор нод" location="top_system_section" weight="40">
+    <web-section key="node-forms-section" name="Niout Auto to Jira" location="top_system_section" weight="40">
         <label key="com.saael.nodeforms.section"/>
     </web-section>
 
-    <web-item key="node-forms-item" name="Редактор нод" section="top_system_section/node-forms-section" weight="10">
+    <web-item key="node-forms-item" name="Автоматизация" section="top_system_section/node-forms-section" weight="10">
         <label key="com.saael.nodeforms.menu"/>
         <link linkId="node-forms-admin">/secure/NodeFormsAction!default.jspa</link>
     </web-item>
 
-    <web-item key="node-forms-project" name="Редактор нод" section="atl.jira.proj.config/projectgroup4" weight="500">
+    <web-item key="node-forms-project" name="Автоматизация" section="atl.jira.proj.config/projectgroup4" weight="500">
         <label key="com.saael.nodeforms.project"/>
         <link linkId="node-forms-project">/secure/NodeFormsAction!default.jspa?projectKey=$projectKeyEncoded</link>
     </web-item>
 
-    <webwork1 key="node-forms-page" name="Редактор нод">
+    <webwork1 key="node-forms-page" name="Niout Auto to Jira" class="java.lang.Object">
         <actions>
             <action name="com.saael.nodeforms.NodeFormsAction" alias="NodeFormsAction">
                 <view name="success">/templates/node-forms.vm</view>
+                <view name="input">/templates/node-forms.vm</view>
+                <view name="error">/templates/node-forms.vm</view>
             </action>
         </actions>
     </webwork1>
