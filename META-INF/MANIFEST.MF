@@ -2,34 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Node editor
 Bundle-SymbolicName: com.saael.nodeforms
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Vendor: Saael
-Bundle-Description: Free rule editor. Installs next to Automation for Ji
- ra and writes changes into the same rules.
+Bundle-Description: Own automation rule editor. Installs next to Automat
+ ion for Jira and uses the same rules.
 Atlassian-Plugin-Key: com.saael.nodeforms
-Spring-Context: *
-Bundle-ClassPath: .,META-INF/lib/atlassian-spring-scanner-runtime-1.2.13
- .jar,META-INF/lib/atlassian-spring-scanner-annotation-1.2.13.jar
-Import-Package: javax.servlet,javax.servlet.http,javax.ws.rs,javax.ws.rs
- .core,javax.inject,javax.annotation;resolution:=optional,com.atlassian.
- jira.component,com.atlassian.jira.permission,com.atlassian.jira.securit
- y,com.atlassian.jira.user,com.atlassian.plugin.webresource,com.atlassia
- n.sal.api.pluginsettings,com.atlassian.plugin.osgi.bridge.external,com.
- atlassian.plugin.osgi.factory,com.atlassian.plugin.osgi.external;resolu
- tion:=optional,com.atlassian.plugin.hostcontainer;resolution:=optional,
- org.osgi.framework,org.springframework.aop.support,org.springframework.
- beans,org.springframework.beans.factory,org.springframework.beans.facto
- ry.annotation,org.springframework.beans.factory.config,org.springframew
- ork.beans.factory.parsing,org.springframework.beans.factory.support,org
- .springframework.beans.factory.xml,org.springframework.context.annotati
- on,org.springframework.core.io,org.springframework.util,org.springframe
- work.osgi.context;resolution:=optional,org.springframework.osgi.service
- .exporter.support;resolution:=optional,org.springframework.osgi.service
- .importer.support;resolution:=optional,org.eclipse.gemini.blueprint.con
- text;resolution:=optional,org.eclipse.gemini.blueprint.service.exporter
- ;resolution:=optional,org.eclipse.gemini.blueprint.service.exporter.sup
- port;resolution:=optional,org.eclipse.gemini.blueprint.service.importer
- .support;resolution:=optional,com.google.common.annotations,com.google.
- common.base,com.google.common.collect,org.apache.commons.lang,org.apach
- e.commons.logging,org.w3c.dom;resolution:=optional
+Bundle-ClassPath: .
+Import-Package: com.atlassian.jira.component,com.atlassian.jira.permissi
+ on,com.atlassian.jira.project,com.atlassian.jira.project.type,com.atlas
+ sian.jira.security,com.atlassian.jira.user,com.atlassian.plugin.webreso
+ urce,javax.servlet.http
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

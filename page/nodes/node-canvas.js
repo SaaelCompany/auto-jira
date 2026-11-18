@@ -450,6 +450,67 @@
         return root.getAttribute("data-import") || "";
     }
 
+    function pageProject() {
+        var root = document.getElementById("node-canvas-root");
+        if (!root) {
+            return null;
+        }
+        var id = root.getAttribute("data-project") || "";
+        if (!id) {
+            return null;
+        }
+        return {
+            id: id,
+            key: root.getAttribute("data-project-key") || id,
+            name: root.getAttribute("data-project-name") || "",
+            type: root.getAttribute("data-project-type") || "software"
+        };
+    }
+
+    function libraryTitleText() {
+        var project = pageProject();
+        return project ? ("Правила проекта " + project.key) : "Правила";
+    }
+
+    function setRuleState(value) {
+        state.rule = state.rule || {};
+        state.rule.state = value;
+        if (state.sourceRule) {
+            state.sourceRule.state = value;
+        }
+        scheduleSave();
+    }
+
+    function newRule() {
+        var project = pageProject();
+        var triggerId = newComponentId();
+        applyRule({
+            name: "Новое правило",
+            state: "DISABLED",
+            description: "",
+            canOtherRuleTrigger: true,
+            notifyOnError: "FIRSTERROR",
+            projects: project ? [{ projectId: String(project.id), projectTypeKey: project.type || "software" }] : [],
+            labels: [],
+            tags: [],
+            __projectId: project ? String(project.id) : "GLOBAL",
+            trigger: {
+                id: triggerId,
+                component: "TRIGGER",
+                type: "jira.issue.event.trigger:created",
+                schemaVersion: 1,
+                value: { eventKey: "jira:issue_created", issueEvent: "issue_created" },
+                children: [],
+                conditions: []
+            },
+            components: []
+        });
+        statusText = project
+            ? ("Новое правило проекта " + project.key + ". Оно выключено, пока вы его не включите.")
+            : "Новое глобальное правило. Оно выключено, пока вы его не включите.";
+        paintStatus();
+    }
+
     function fetchServer() {
         var url = restUrl();
         if (!url || serverTried) {
@@ -509,11 +570,16 @@
         var importer = el("button", "nc-btn", "Импорт");
         importer.type = "button";
         importer.id = "nc-import-open";
+        var create = el("button", "nc-btn nc-btn-primary", "Новое правило");
+        create.type = "button";
+        create.id = "nc-new";
+        create.style.display = "none";
         var add = el("button", "nc-btn", "Добавить шаг");
         add.type = "button";
         add.id = "nc-add";
         actions.appendChild(classic);
         actions.appendChild(backLibrary);
+        actions.appendChild(create);
         actions.appendChild(importer);
         actions.appendChild(add);
         top.appendChild(name);
@@ -531,9 +597,21 @@
         check.id = "nc-clear";
         checkLabel.appendChild(check);
         checkLabel.appendChild(document.createTextNode("Разрешить запуск из другого правила"));
+        var stateLabel = el("label", null, "Состояние");
+        stateLabel.setAttribute("for", "nc-state");
+        var stateSelect = document.createElement("select");
+        stateSelect.id = "nc-state";
+        [["ENABLED", "Включено"], ["DISABLED", "Выключено"], ["NEW", "Черновик"]].forEach(function (pair) {
+            var option = document.createElement("option");
+            option.value = pair[0];
+            option.textContent = pair[1];
+            stateSelect.appendChild(option);
+        });
         var status = el("div", "nc-status");
         sub.appendChild(blockLabel);
         sub.appendChild(block);
+        sub.appendChild(stateLabel);
+        sub.appendChild(stateSelect);
         sub.appendChild(checkLabel);
         sub.appendChild(status);
 
@@ -558,8 +636,12 @@
         var library = el("div", "nc-library");
         library.id = "nc-library";
         library.style.display = "none";
-        library.appendChild(el("h2", null, "Правила Automation for Jira"));
-        library.appendChild(el("p", null, "Те же правила, что в Automation for Jira. Изменение здесь записывается в то же правило."));
+        var libraryTitle = el("h2", null, "Правила");
+        libraryTitle.id = "nc-library-title";
+        var libraryNote = el("p", null, "Свой редактор тех же правил. Изменение здесь записывается в то же правило, что исполняет Automation for Jira.");
+        libraryNote.id = "nc-library-note";
+        library.appendChild(libraryTitle);
+        library.appendChild(libraryNote);
         var ruleList = el("div", "nc-rule-list");
         ruleList.id = "nc-rule-list";
         library.appendChild(ruleList);
@@ -590,6 +672,12 @@
         });
         add.addEventListener("click", function () {
             addField(80 + (state.fields.length % 5) * 28, 48 + (state.fields.length % 6) * 36);
+        });
+        create.addEventListener("click", function () {
+            newRule();
+        });
+        stateSelect.addEventListener("change", function () {
+            setRuleState(stateSelect.value);
         });
         importer.addEventListener("click", function () {
             toggleImport(true);
@@ -673,23 +761,33 @@
             block.value = state.description || "";
         }
         check.checked = !!state.canOtherRuleTrigger;
+        var stateSelect = document.getElementById("nc-state");
+        if (stateSelect && document.activeElement !== stateSelect) {
+            var ruleState = (state.sourceRule && state.sourceRule.state) || (state.rule && state.rule.state) || "ENABLED";
+            stateSelect.value = ruleState;
+        }
         var note = document.querySelector(".nc-note");
         if (note) {
             note.textContent = importUrl()
-                ? "Оба плагина используют правила Automation for Jira. Сохранение здесь меняет то же правило. Положение нод остаётся только в браузере."
-                : "Черновик хранится в браузере. Рядом с Automation for Jira правки пишутся в его правила.";
+                ? "Это ваш редактор правил. Сохранение меняет то же правило, которое исполняет Automation for Jira. Положение нод остаётся только в браузере."
+                : "Черновик хранится в браузере. В Jira правки пишутся в общие правила.";
+        }
+        var libraryTitle = document.getElementById("nc-library-title");
+        if (libraryTitle) {
+            libraryTitle.textContent = libraryTitleText();
         }
         paintStatus();
         if (state.view === "library") {
             name.readOnly = true;
             if (document.activeElement !== name) {
-                name.value = "Правила Automation for Jira";
+                name.value = libraryTitleText();
             }
             document.getElementById("nc-library").style.display = "block";
             document.querySelector(".nc-scroll").style.display = "none";
             document.querySelector(".nc-sub").style.display = "none";
             document.querySelector(".nc-help").style.display = "none";
             document.getElementById("nc-add").style.display = "none";
+            document.getElementById("nc-new").style.display = importUrl() ? "" : "none";
             document.getElementById("nc-library-back").style.display = "none";
             renderLibrary();
             return;
@@ -700,6 +798,7 @@
         document.querySelector(".nc-sub").style.display = "";
         document.querySelector(".nc-help").style.display = "";
         document.getElementById("nc-add").style.display = "";
+        document.getElementById("nc-new").style.display = importUrl() ? "" : "none";
         document.getElementById("nc-library-back").style.display = importUrl() ? "" : "none";
         resizeCanvas();
         renderNodes();
@@ -2395,9 +2494,14 @@
         }
         state.view = "library";
         state.library = [];
-        state.libraryMessage = "Чтение правил Automation for Jira…";
+        state.libraryMessage = "Чтение правил…";
         statusText = state.libraryMessage;
         render();
+        var only = pageProject();
+        if (only) {
+            readRuleLists([only.id], [{ id: only.id, key: only.key, name: only.name }]);
+            return;
+        }
         getJson(projectsUrl(), function (status, text) {
             var projects = [];
             if (status >= 200 && status < 300) {
@@ -2418,6 +2522,11 @@
                     ids.push(String(project.id));
                 }
             });
+            readRuleLists(ids, projects);
+        });
+    }
+
+    function readRuleLists(ids, projects) {
             var pending = ids.length;
             var all = [];
             var seen = {};
@@ -2467,9 +2576,9 @@
                     state.library = all;
                     state.view = "library";
                     if (!anyOk) {
-                        state.libraryMessage = "Automation for Jira не отдал список правил. Проверьте, что оригинальный плагин включён.";
+                        state.libraryMessage = "Список правил не получен. Проверьте, что Automation for Jira включён: он хранит эти правила.";
                     } else if (!all.length) {
-                        state.libraryMessage = "В Automation for Jira пока нет правил.";
+                        state.libraryMessage = "Правил пока нет. Нажмите «Новое правило».";
                     } else {
                         state.libraryMessage = "";
                     }
@@ -2477,7 +2586,6 @@
                     render();
                 });
             });
-        });
     }
 
     function boot() {

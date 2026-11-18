@@ -1,8 +1,12 @@
 package com.saael.nodeforms;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.project.Project;
+import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.project.type.ProjectTypeKey;
 import com.atlassian.jira.security.GlobalPermissionManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.plugin.webresource.UrlMode;
 import com.atlassian.plugin.webresource.WebResourceUrlProvider;
 
@@ -12,8 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Отдельная страница редактора. Не использует действия Automation for Jira,
- * поэтому адреса AutomationProjectAdminAction и AutomationGlobalAdminAction остаются у оригинала.
+ * Своя страница правил. Глобальный список и список проекта открываются здесь,
+ * а чтение и запись идут в REST Automation for Jira.
  */
 public class NodeCanvasServlet extends HttpServlet {
     static final String MODULE = "com.saael.nodeforms:node-canvas";
@@ -21,8 +25,19 @@ public class NodeCanvasServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JiraAuthenticationContext auth = ComponentAccessor.getComponent(JiraAuthenticationContext.class);
-        GlobalPermissionManager permissions = ComponentAccessor.getComponent(GlobalPermissionManager.class);
-        if (!Access.allowed(auth, permissions)) {
+        GlobalPermissionManager global = ComponentAccessor.getComponent(GlobalPermissionManager.class);
+        PermissionManager projects = ComponentAccessor.getComponent(PermissionManager.class);
+        String projectKey = request.getParameter("projectKey");
+        Project project = null;
+        if (projectKey != null && projectKey.length() > 0) {
+            ProjectManager manager = ComponentAccessor.getComponent(ProjectManager.class);
+            project = manager == null ? null : manager.getProjectByCurrentKey(projectKey);
+            if (project == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+        }
+        if (!Access.allowed(auth, global, projects, project)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
@@ -30,16 +45,25 @@ public class NodeCanvasServlet extends HttpServlet {
         String context = request.getContextPath() == null ? "" : request.getContextPath();
         String css = resource(urls, context, "node-canvas.css");
         String script = resource(urls, context, "node-canvas.js");
-        String rest = context + "/rest/node-forms/1.0/node-schema";
         String classic = context + "/secure/AutomationGlobalAdminAction!default.jspa";
         String source = context + "/rest/cb-automation/latest/project/GLOBAL/rule/export";
-
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
-        response.getWriter().write(page(css, script, rest, classic, source));
+        response.getWriter().write(page(css, script, classic, source, project));
     }
 
-    private static String page(String css, String script, String rest, String classic, String source) {
+    private static String page(String css, String script, String classic, String source, Project project) {
+        String projectId = "";
+        String projectKey = "";
+        String projectName = "";
+        String projectType = "";
+        if (project != null) {
+            projectId = project.getId() == null ? "" : String.valueOf(project.getId());
+            projectKey = project.getKey() == null ? "" : project.getKey();
+            projectName = project.getName() == null ? "" : project.getName();
+            ProjectTypeKey type = project.getProjectTypeKey();
+            projectType = type == null || type.getKey() == null ? "" : type.getKey();
+        }
         return "<!DOCTYPE html>\n"
                 + "<html lang=\"ru\">\n"
                 + "<head>\n"
@@ -48,7 +72,13 @@ public class NodeCanvasServlet extends HttpServlet {
                 + "<link rel=\"stylesheet\" href=\"" + escape(css) + "\">\n"
                 + "</head>\n"
                 + "<body class=\"nc-nodes\">\n"
-                + "<div id=\"node-canvas-root\" data-rest=\"" + escape(rest) + "\" data-classic=\"" + escape(classic) + "\" data-import=\"" + escape(source) + "\"></div>\n"
+                + "<div id=\"node-canvas-root\""
+                + " data-classic=\"" + escape(classic) + "\""
+                + " data-import=\"" + escape(source) + "\""
+                + " data-project=\"" + escape(projectId) + "\""
+                + " data-project-key=\"" + escape(projectKey) + "\""
+                + " data-project-name=\"" + escape(projectName) + "\""
+                + " data-project-type=\"" + escape(projectType) + "\"></div>\n"
                 + "<script src=\"" + escape(script) + "\"></script>\n"
                 + "</body>\n"
                 + "</html>\n";
@@ -69,6 +99,9 @@ public class NodeCanvasServlet extends HttpServlet {
     }
 
     private static String escape(String value) {
+        if (value == null) {
+            return "";
+        }
         return value.replace("&", "&amp;").replace("\"", "&quot;").replace("<", "&lt;");
     }
 }

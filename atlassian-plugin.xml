@@ -1,9 +1,9 @@
 <atlassian-plugin key="com.saael.nodeforms" name="Редактор нод" plugins-version="2">
     <plugin-info>
         <description><![CDATA[
-            <p>Бесплатный редактор правил. Ставится рядом с Automation for Jira и записывает изменения в те же правила.</p>
+            <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira и работает с теми же правилами.</p>
         ]]></description>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
@@ -18,14 +18,8 @@
 
     <resource type="i18n" name="i18n" location="com/saael/nodeforms/i18n"/>
 
-    <rest key="node-forms-rest" path="/node-forms" version="1.0">
-        <description>Схема редактора нод</description>
-        <package>com.saael.nodeforms</package>
-        <dispatcher>REQUEST</dispatcher>
-    </rest>
-
     <servlet key="node-forms-servlet" name="Редактор нод" class="com.saael.nodeforms.NodeCanvasServlet">
-        <description>Страница редактора связанных полей</description>
+        <description>Страница редактора правил</description>
         <url-pattern>/node-forms</url-pattern>
     </servlet>
 
@@ -42,5 +36,11 @@
         <label key="com.saael.nodeforms.menu"/>
         <link linkId="node-forms-admin">/plugins/servlet/node-forms</link>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition"/>
+    </web-item>
+
+    <web-item key="node-forms-project" name="Редактор нод" section="atl.jira.proj.config/projectgroup4" weight="500">
+        <label key="com.saael.nodeforms.project"/>
+        <link linkId="node-forms-project">/plugins/servlet/node-forms?projectKey=$projectKeyEncoded</link>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsProjectAdminCondition"/>
     </web-item>
 </atlassian-plugin>
