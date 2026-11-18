@@ -38,6 +38,17 @@ body.nc-nodes:not(.nc-in-jira) {
     overflow: hidden;
 }
 
+body.nc-embed #footer,
+body.nc-embed #announcement-banner,
+body.nc-embed .aui-page-header {
+    display: none;
+}
+
+body.nc-embed #content {
+    margin: 0;
+    padding: 0;
+}
+
 body.nc-nodes #automation-admin-container {
     display: none !important;
 }
