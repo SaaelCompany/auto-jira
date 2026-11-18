@@ -1,9 +1,9 @@
-<atlassian-plugin key="com.saael.nodeforms" name="Редактор нод" plugins-version="2">
+<atlassian-plugin key="com.saael.nodeforms" name="Редактор нод" plugins-version="1">
     <plugin-info>
         <description><![CDATA[
             <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira и работает с теми же правилами.</p>
         ]]></description>
-        <version>1.0.6</version>
+        <version>1.0.7</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
