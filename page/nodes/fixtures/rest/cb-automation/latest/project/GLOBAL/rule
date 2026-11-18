@@ -1,0 +1,27 @@
+[
+  {
+    "id": 7,
+    "name": "Комментарий связанным при решении",
+    "state": "ENABLED",
+    "description": "Глобальное правило оригинального плагина",
+    "canOtherRuleTrigger": false,
+    "trigger": {
+      "id": "t-global",
+      "component": "TRIGGER",
+      "type": "jira.issue.event.trigger:updated",
+      "value": {"eventKey": "jira:issue_updated", "issueEvent": "issue_resolved"},
+      "children": [],
+      "conditions": []
+    },
+    "components": [
+      {
+        "id": "c-global",
+        "component": "ACTION",
+        "type": "jira.issue.comment",
+        "value": {"comment": "Связанные задачи уведомлены"},
+        "children": [],
+        "conditions": []
+      }
+    ]
+  }
+]
