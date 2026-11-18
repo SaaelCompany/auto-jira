@@ -1,0 +1,15 @@
+<html>
+<head>
+    <title>Редактор нод</title>
+    <meta name="decorator" content="atl.general"/>
+    #set ($ctx = "")
+    #if ($action && $action.httpRequest && $action.httpRequest.contextPath)
+        #set ($ctx = $action.httpRequest.contextPath)
+    #end
+    <link rel="stylesheet" href="${ctx}/download/resources/com.saael.nodeforms:node-canvas/node-canvas.css"/>
+</head>
+<body>
+    <div id="node-canvas-root"></div>
+    <script src="${ctx}/download/resources/com.saael.nodeforms:node-canvas/node-canvas.js"></script>
+</body>
+</html>

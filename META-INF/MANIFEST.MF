@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Node editor
 Bundle-SymbolicName: com.saael.nodeforms
-Bundle-Version: 1.0.10
+Bundle-Version: 1.0.11
 Bundle-Vendor: Saael
 Bundle-Description: Node editor for the same Automation for Jira rules
 Atlassian-Plugin-Key: com.saael.nodeforms
@@ -10,5 +10,6 @@ Bundle-ClassPath: .
 Import-Package: com.atlassian.plugin.hostcontainer,com.atlassian.plugin.
  osgi.external,com.atlassian.plugin.osgi.factory,com.atlassian.plugin.os
  gi.bridge.external
+DynamicImport-Package: com.atlassian.jira.*,webwork.*
 Created-By: 21.0.13.0.3 (Ubuntu)
 

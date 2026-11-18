@@ -25,7 +25,16 @@
 body.nc-nodes {
     margin: 0;
     background: #f7f8f9;
+}
+
+body.nc-nodes:not(.nc-in-jira) {
     height: 100vh;
+    overflow: hidden;
+}
+
+#node-canvas-root.nc-in-jira {
+    height: calc(100vh - 56px);
+    min-height: 480px;
     overflow: hidden;
 }
 

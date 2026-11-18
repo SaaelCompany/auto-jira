@@ -67,7 +67,13 @@
         { type: "jira.worklog.add", component: "ACTION", label: "Добавить учёт труда", kind: "Действие", color: "teal", value: {} },
         { type: "jira.publish.event", component: "ACTION", label: "Опубликовать событие", kind: "Действие", color: "teal", value: {} },
         { type: "jira.set.entity.property", component: "ACTION", label: "Записать свойство", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.issue.refresh.issue", component: "ACTION", label: "Обновить данные задачи", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.auto.approve.action", component: "ACTION", label: "Автоодобрение", kind: "Действие", color: "green", value: {} },
+        { type: "jira.version.create", component: "ACTION", label: "Создать версию", kind: "Действие", color: "teal", value: {} },
+        { type: "jira.version.release", component: "ACTION", label: "Выпустить версию", kind: "Действие", color: "green", value: {} },
+        { type: "jira.version.unrelease", component: "ACTION", label: "Снять версию с выпуска", kind: "Действие", color: "orange", value: {} },
         { type: "codebarrel.action.log", component: "ACTION", label: "Запись в журнал", kind: "Действие", color: "teal", value: { message: "" } },
+        { type: "jira.issue.hasAttachments", component: "CONDITION", label: "Есть вложения", kind: "Условие", color: "purple", value: {} },
         { type: "jira.issue.related", component: "BRANCH", label: "Ветка: связанные задачи", kind: "Ветвление", color: "green", value: { relatedType: "linked", jql: "" } }
     ];
 
@@ -483,7 +489,7 @@
 
     function jiraContext() {
         var path = window.location.pathname || "";
-        var markers = ["/download/resources/", "/plugins/servlet/"];
+        var markers = ["/download/resources/", "/plugins/servlet/", "/secure/"];
         var i;
         for (i = 0; i < markers.length; i++) {
             var at = path.indexOf(markers[i]);
@@ -492,6 +498,17 @@
             }
         }
         return null;
+    }
+
+    function markJiraPage() {
+        if (!document.body || !/\/secure\//.test(window.location.pathname || "")) {
+            return;
+        }
+        document.body.classList.add("nc-in-jira");
+        var root = document.getElementById("node-canvas-root");
+        if (root) {
+            root.classList.add("nc-in-jira");
+        }
     }
 
     function queryParam(name) {
@@ -844,6 +861,7 @@
         if (!document.body.classList.contains("nc-classic")) {
             document.body.classList.add("nc-nodes");
         }
+        markJiraPage();
         var name = document.getElementById("nc-name");
         var block = document.getElementById("nc-block-title");
         var check = document.getElementById("nc-clear");
@@ -1275,8 +1293,32 @@
                 return input;
             }));
         }
-        if (type === "jira.incoming.webhook" || type === "jira.manual.trigger.issue" || type === "jira.sla.threshold.trigger") {
-            panel.appendChild(el("p", "nc-menu-hint", "Тип совпадает с Automation for Jira. Остальные поля этого триггера сохраняются как есть."));
+        if (type === "jira.incoming.webhook" || type === "jira.issue.outgoing.webhook") {
+            panel.appendChild(settingField("URL webhook", function () {
+                var input = document.createElement("input");
+                input.type = "text";
+                input.value = value.url || value.webhookUrl || "";
+                input.addEventListener("input", function () {
+                    value.url = input.value;
+                    scheduleSave();
+                });
+                return input;
+            }));
+            panel.appendChild(el("p", "nc-menu-hint", "Это тот же тип, что в Automation for Jira. Секрет, заголовки и прочие поля правила не стираются."));
+        }
+        if (type === "jira.incoming.webhook") {
+            panel.appendChild(settingField("JQL", function () {
+                var area = document.createElement("textarea");
+                area.value = value.jql || "";
+                area.addEventListener("input", function () {
+                    value.jql = area.value;
+                    scheduleSave();
+                });
+                return area;
+            }));
+        }
+        if (type === "jira.manual.trigger.issue" || type === "jira.sla.threshold.trigger") {
+            panel.appendChild(el("p", "nc-menu-hint", "Тип совпадает с Automation for Jira. Уже сохранённые поля этого шага остаются в правиле."));
         }
     }
 
@@ -2938,6 +2980,7 @@
         if (!document.body) {
             return;
         }
+        markJiraPage();
         if (importUrl()) {
             state = seed();
             state.view = "library";

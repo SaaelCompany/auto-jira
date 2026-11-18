@@ -3,7 +3,7 @@
         <description><![CDATA[
             <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira и работает с теми же правилами.</p>
         ]]></description>
-        <version>1.0.10</version>
+        <version>1.0.11</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
@@ -12,8 +12,8 @@
         <param name="vendor-logo">images/plugin/vendor-logo.png</param>
         <param name="atlassian-data-center-status">compatible</param>
         <param name="atlassian-data-center-compatible">true</param>
-        <param name="configure.url">/download/resources/com.saael.nodeforms:node-canvas/index.html</param>
-        <param name="post.install.url">/download/resources/com.saael.nodeforms:node-canvas/index.html</param>
+        <param name="configure.url">/secure/NodeFormsAction!default.jspa</param>
+        <param name="post.install.url">/secure/NodeFormsAction!default.jspa</param>
     </plugin-info>
 
     <resource type="i18n" name="i18n" location="com/saael/nodeforms/i18n"/>
@@ -30,11 +30,19 @@
 
     <web-item key="node-forms-item" name="Редактор нод" section="top_system_section/node-forms-section" weight="10">
         <label key="com.saael.nodeforms.menu"/>
-        <link linkId="node-forms-admin">/download/resources/com.saael.nodeforms:node-canvas/index.html</link>
+        <link linkId="node-forms-admin">/secure/NodeFormsAction!default.jspa</link>
     </web-item>
 
     <web-item key="node-forms-project" name="Редактор нод" section="atl.jira.proj.config/projectgroup4" weight="500">
         <label key="com.saael.nodeforms.project"/>
-        <link linkId="node-forms-project">/download/resources/com.saael.nodeforms:node-canvas/index.html?projectKey=$projectKeyEncoded</link>
+        <link linkId="node-forms-project">/secure/NodeFormsAction!default.jspa?projectKey=$projectKeyEncoded</link>
     </web-item>
+
+    <webwork1 key="node-forms-page" name="Редактор нод">
+        <actions>
+            <action name="com.saael.nodeforms.NodeFormsAction" alias="NodeFormsAction">
+                <view name="success">/templates/node-forms.vm</view>
+            </action>
+        </actions>
+    </webwork1>
 </atlassian-plugin>
