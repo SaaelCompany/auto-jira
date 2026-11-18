@@ -2,17 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Node editor
 Bundle-SymbolicName: com.saael.nodeforms
-Bundle-Version: 1.0.4
+Bundle-Version: 1.0.5
 Bundle-Vendor: Saael
-Bundle-Description: Node editor for the same Automation for Jira rules. 
- Delivers each event to that engine a second time.
+Bundle-Description: Node editor. Installs next to Automation for Jira an
+ d edits the same rules.
 Atlassian-Plugin-Key: com.saael.nodeforms
 Bundle-ClassPath: .
-Import-Package: com.atlassian.event.api,com.atlassian.jira.component,com
- .atlassian.jira.event,com.atlassian.jira.event.issue.commit,com.atlassi
- an.jira.event.issue.link,com.atlassian.jira.event.issue.property,com.at
- lassian.jira.event.project,com.atlassian.jira.event.worklog,com.atlassi
- an.jira.permission,com.atlassian.jira.project,com.atlassian.jira.projec
- t.type,com.atlassian.jira.security,com.atlassian.jira.user,com.atlassia
- n.plugin.webresource,javax.servlet.http,org.osgi.framework
+Import-Package: javax.servlet.http
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

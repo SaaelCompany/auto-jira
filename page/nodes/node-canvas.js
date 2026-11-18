@@ -456,12 +456,13 @@
             return null;
         }
         var id = root.getAttribute("data-project") || "";
-        if (!id) {
+        var key = root.getAttribute("data-project-key") || "";
+        if (!id && !key) {
             return null;
         }
         return {
             id: id,
-            key: root.getAttribute("data-project-key") || id,
+            key: key || id,
             name: root.getAttribute("data-project-name") || "",
             type: root.getAttribute("data-project-type") || "software"
         };
@@ -2498,6 +2499,34 @@
         statusText = state.libraryMessage;
         render();
         var only = pageProject();
+        if (only && !only.id) {
+            getJson(projectsUrl() + "/" + encodeURIComponent(only.key), function (status, text) {
+                var project = null;
+                if (status >= 200 && status < 300) {
+                    try {
+                        project = JSON.parse(text);
+                    } catch (e) {
+                        project = null;
+                    }
+                }
+                var root = document.getElementById("node-canvas-root");
+                if (!project || project.id == null || !root) {
+                    state.libraryMessage = "Проект " + only.key + " не найден.";
+                    statusText = state.libraryMessage;
+                    render();
+                    return;
+                }
+                root.setAttribute("data-project", String(project.id));
+                if (project.name) {
+                    root.setAttribute("data-project-name", project.name);
+                }
+                if (project.projectTypeKey) {
+                    root.setAttribute("data-project-type", String(project.projectTypeKey));
+                }
+                loadLibrary();
+            });
+            return;
+        }
         if (only) {
             readRuleLists([only.id], [{ id: only.id, key: only.key, name: only.name }]);
             return;
