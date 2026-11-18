@@ -195,6 +195,73 @@ body.nc-classic .nc-back {
     border-bottom: 1px solid #dfe1e6;
 }
 
+.nc-library {
+    flex: 1;
+    overflow: auto;
+    background: #f7f8f9;
+    padding: 16px 20px 32px;
+}
+
+.nc-library h2 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    color: #172b4d;
+}
+
+.nc-library > p {
+    margin: 0 0 16px;
+    color: #6b778c;
+    font-size: 13px;
+}
+
+.nc-rule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 760px;
+}
+
+.nc-rule {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #dfe1e6;
+    border-radius: 8px;
+    padding: 12px 14px;
+    cursor: pointer;
+}
+
+.nc-rule:hover {
+    border-color: #4c9aff;
+}
+
+.nc-rule-name {
+    display: block;
+    font-weight: 600;
+    color: #172b4d;
+    font-size: 15px;
+}
+
+.nc-rule-meta {
+    display: block;
+    margin-top: 2px;
+    color: #42526e;
+    font-size: 12px;
+}
+
+.nc-rule-desc {
+    display: block;
+    margin-top: 4px;
+    color: #6b778c;
+    font-size: 13px;
+}
+
+.nc-library-empty {
+    color: #42526e;
+    font-size: 14px;
+}
+
 .nc-scroll {
     overflow: auto;
     flex: 1 1 auto;

@@ -1,0 +1,35 @@
+[
+  {
+    "id": 15,
+    "name": "Назначить новую ошибку",
+    "state": "DISABLED",
+    "description": "Проект SUP",
+    "canOtherRuleTrigger": true,
+    "trigger": {
+      "id": "t-sup",
+      "component": "TRIGGER",
+      "type": "jira.issue.event.trigger:created",
+      "value": {"eventKey": "jira:issue_created", "issueEvent": "issue_created"},
+      "children": [],
+      "conditions": []
+    },
+    "components": [
+      {
+        "id": "if-sup",
+        "component": "CONDITION",
+        "type": "jira.jql.condition",
+        "value": {"jql": "issuetype = Bug"},
+        "children": [],
+        "conditions": []
+      },
+      {
+        "id": "a-sup",
+        "component": "ACTION",
+        "type": "jira.issue.assign",
+        "value": {"assignType": "SPECIFY_USER", "assignee": "дежурный"},
+        "children": [],
+        "conditions": []
+      }
+    ]
+  }
+]

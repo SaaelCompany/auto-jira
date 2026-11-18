@@ -437,6 +437,10 @@
         var classic = el("button", "nc-btn", "Классический редактор");
         classic.type = "button";
         classic.id = "nc-classic";
+        var backLibrary = el("button", "nc-btn", "К списку");
+        backLibrary.type = "button";
+        backLibrary.id = "nc-library-back";
+        backLibrary.style.display = "none";
         var importer = el("button", "nc-btn", "Импорт");
         importer.type = "button";
         importer.id = "nc-import-open";
@@ -444,6 +448,7 @@
         add.type = "button";
         add.id = "nc-add";
         actions.appendChild(classic);
+        actions.appendChild(backLibrary);
         actions.appendChild(importer);
         actions.appendChild(add);
         top.appendChild(name);
@@ -468,7 +473,7 @@
         sub.appendChild(status);
 
         var help = el("p", "nc-help", HELP);
-        var note = el("p", "nc-note", "Копия правила хранится отдельно. Импорт только читает Automation for Jira и не меняет его правила.");
+        var note = el("p", "nc-note", "Список читается из Automation for Jira. Открытое правило — копия, исходные правила не изменяются.");
         var scroll = el("div", "nc-scroll");
         var canvas = el("div", "nc-canvas");
         canvas.id = "nc-canvas";
@@ -485,8 +490,17 @@
         scroll.appendChild(canvas);
         app.appendChild(top);
         app.appendChild(sub);
+        var library = el("div", "nc-library");
+        library.id = "nc-library";
+        library.style.display = "none";
+        library.appendChild(el("h2", null, "Правила Automation for Jira"));
+        library.appendChild(el("p", null, "Глобальные правила и правила проектов. Нажмите правило, чтобы открыть его на канвасе."));
+        var ruleList = el("div", "nc-rule-list");
+        ruleList.id = "nc-rule-list";
+        library.appendChild(ruleList);
         app.appendChild(help);
         app.appendChild(note);
+        app.appendChild(library);
         app.appendChild(scroll);
         root.appendChild(app);
 
@@ -514,6 +528,11 @@
         });
         importer.addEventListener("click", function () {
             toggleImport(true);
+        });
+        backLibrary.addEventListener("click", function () {
+            state.view = "library";
+            statusText = (state.library && state.library.length) ? ("Правил: " + state.library.length) : (state.libraryMessage || "");
+            render();
         });
         classic.addEventListener("click", function () {
             if (classicHref) {
@@ -576,6 +595,27 @@
         }
         check.checked = !!state.canOtherRuleTrigger;
         paintStatus();
+        if (state.view === "library") {
+            name.readOnly = true;
+            if (document.activeElement !== name) {
+                name.value = "Правила Automation for Jira";
+            }
+            document.getElementById("nc-library").style.display = "block";
+            document.querySelector(".nc-scroll").style.display = "none";
+            document.querySelector(".nc-sub").style.display = "none";
+            document.querySelector(".nc-help").style.display = "none";
+            document.getElementById("nc-add").style.display = "none";
+            document.getElementById("nc-library-back").style.display = "none";
+            renderLibrary();
+            return;
+        }
+        name.readOnly = false;
+        document.getElementById("nc-library").style.display = "none";
+        document.querySelector(".nc-scroll").style.display = "";
+        document.querySelector(".nc-sub").style.display = "";
+        document.querySelector(".nc-help").style.display = "";
+        document.getElementById("nc-add").style.display = "";
+        document.getElementById("nc-library-back").style.display = importUrl() ? "" : "none";
         resizeCanvas();
         renderNodes();
         renderSettings();
@@ -1312,17 +1352,23 @@
         delete kept.trigger;
         delete kept.components;
         delete kept.id;
+        delete kept.__scope;
+        var library = state && state.library ? state.library : [];
+        var libraryMessage = state && state.libraryMessage ? state.libraryMessage : "";
         state = {
             name: rule.name || "Импортированное правило",
             description: rule.description || "",
             canOtherRuleTrigger: rule.canOtherRuleTrigger !== false,
             originalId: rule.id || null,
             selectedId: null,
+            view: "canvas",
+            library: library,
+            libraryMessage: libraryMessage,
             rule: kept,
             fields: bag.fields,
             links: bag.links
         };
-        statusText = "Импортирована копия. Правило в Automation for Jira не изменено.";
+        statusText = "Копия правила. В Automation for Jira оно не изменено.";
         scheduleSave();
         render();
     }
@@ -1725,11 +1771,190 @@
         removeLink(path.dataset.linkId);
     }
 
+    function ruleStateLabel(value) {
+        if (value === "ENABLED") {
+            return "Включено";
+        }
+        if (value === "DISABLED") {
+            return "Выключено";
+        }
+        return value || "Без состояния";
+    }
+
+    function triggerLabel(rule) {
+        var type = rule.trigger && rule.trigger.type;
+        var spec = findCatalog(type);
+        return spec ? spec.label : (type || "");
+    }
+
+    function renderLibrary() {
+        var host = document.getElementById("nc-rule-list");
+        if (!host) {
+            return;
+        }
+        host.innerHTML = "";
+        var rules = state.library || [];
+        if (!rules.length) {
+            host.appendChild(el("p", "nc-library-empty", state.libraryMessage || "Чтение правил…"));
+            return;
+        }
+        rules.forEach(function (rule) {
+            var row = el("button", "nc-rule");
+            row.type = "button";
+            row.appendChild(el("span", "nc-rule-name", rule.name || "Без названия"));
+            row.appendChild(el("span", "nc-rule-meta", ruleStateLabel(rule.state) + " · " + (rule.__scope || "Глобальное")));
+            row.appendChild(el("span", "nc-rule-desc", rule.description || triggerLabel(rule)));
+            row.addEventListener("click", function () {
+                applyRule(rule);
+            });
+            host.appendChild(row);
+        });
+    }
+
+    function getJson(url, done) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("X-Atlassian-Token", "no-check");
+        xhr.onload = function () {
+            done(xhr.status, xhr.responseText);
+        };
+        xhr.onerror = function () {
+            done(0, "");
+        };
+        xhr.send();
+    }
+
+    function projectsUrl() {
+        var sample = importUrl();
+        var cut = sample.indexOf("/rest/cb-automation/");
+        if (cut < 0) {
+            return "";
+        }
+        return sample.slice(0, cut) + "/rest/api/2/project";
+    }
+
+    function rulesUrl(projectId) {
+        var sample = importUrl();
+        var marker = "/project/GLOBAL/rule/export";
+        var at = sample.indexOf(marker);
+        if (at < 0) {
+            return "";
+        }
+        return sample.slice(0, at) + "/project/" + encodeURIComponent(projectId) + "/rule";
+    }
+
+    function scopeName(projectId, projects) {
+        var i;
+        for (i = 0; i < projects.length; i++) {
+            if (String(projects[i].id) === String(projectId)) {
+                return projects[i].key || projects[i].name || String(projectId);
+            }
+        }
+        return String(projectId);
+    }
+
+    function loadLibrary() {
+        var globalUrl = rulesUrl("GLOBAL");
+        if (!globalUrl) {
+            state.libraryMessage = "Адрес списка правил не задан.";
+            render();
+            return;
+        }
+        state.view = "library";
+        state.library = [];
+        state.libraryMessage = "Чтение правил Automation for Jira…";
+        statusText = state.libraryMessage;
+        render();
+        getJson(projectsUrl(), function (status, text) {
+            var projects = [];
+            if (status >= 200 && status < 300) {
+                try {
+                    var parsed = JSON.parse(text);
+                    if (Object.prototype.toString.call(parsed) === "[object Array]") {
+                        projects = parsed;
+                    } else if (parsed && Object.prototype.toString.call(parsed.values) === "[object Array]") {
+                        projects = parsed.values;
+                    }
+                } catch (e) {
+                    projects = [];
+                }
+            }
+            var ids = ["GLOBAL"];
+            projects.forEach(function (project) {
+                if (project && project.id != null) {
+                    ids.push(String(project.id));
+                }
+            });
+            var pending = ids.length;
+            var all = [];
+            var seen = {};
+            var anyOk = false;
+            ids.forEach(function (id) {
+                getJson(rulesUrl(id), function (ruleStatus, body) {
+                    if (ruleStatus >= 200 && ruleStatus < 300) {
+                        anyOk = true;
+                        try {
+                            var rules = JSON.parse(body);
+                            if (rules && rules.rules) {
+                                rules = rules.rules;
+                            }
+                            if (Object.prototype.toString.call(rules) !== "[object Array]") {
+                                rules = [];
+                            }
+                            rules.forEach(function (rule) {
+                                if (!rule) {
+                                    return;
+                                }
+                                var key = rule.id != null ? String(rule.id) : "";
+                                if (key && seen[key]) {
+                                    return;
+                                }
+                                if (key) {
+                                    seen[key] = true;
+                                }
+                                rule.__scope = id === "GLOBAL" ? "Глобальное" : scopeName(id, projects);
+                                all.push(rule);
+                            });
+                        } catch (e) {
+                            /* пропускаем неразборчивый ответ */
+                        }
+                    }
+                    pending -= 1;
+                    if (pending > 0) {
+                        return;
+                    }
+                    all.sort(function (a, b) {
+                        return String(a.name || "").localeCompare(String(b.name || ""));
+                    });
+                    state.library = all;
+                    state.view = "library";
+                    if (!anyOk) {
+                        state.libraryMessage = "Automation for Jira не отдал список правил. Проверьте, что оригинальный плагин включён.";
+                    } else if (!all.length) {
+                        state.libraryMessage = "В Automation for Jira пока нет правил.";
+                    } else {
+                        state.libraryMessage = "";
+                    }
+                    statusText = all.length ? ("Правил: " + all.length) : state.libraryMessage;
+                    render();
+                });
+            });
+        });
+    }
+
     function boot() {
         if (!document.body) {
             return;
         }
-        state = loadLocal() || seed();
+        if (importUrl()) {
+            state = seed();
+            state.view = "library";
+            state.library = [];
+            state.libraryMessage = "Чтение правил Automation for Jira…";
+        } else {
+            state = loadLocal() || seed();
+        }
         ensureShell();
         document.addEventListener("pointerdown", onPointerDown);
         document.addEventListener("pointermove", onPointerMove);
@@ -1744,7 +1969,11 @@
             state.selectedId = decodeURIComponent(openMatch[1]);
         }
         render();
-        fetchServer();
+        if (importUrl()) {
+            loadLibrary();
+        } else {
+            fetchServer();
+        }
         window.__nc = {
             getState: function () {
                 return JSON.parse(JSON.stringify(state));
