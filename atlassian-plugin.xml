@@ -1,9 +1,9 @@
 <atlassian-plugin key="com.saael.nodeforms" name="Редактор нод" plugins-version="2">
     <plugin-info>
         <description><![CDATA[
-            <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira и работает с теми же правилами.</p>
+            <p>Свой редактор правил автоматизации. Ставится рядом с Automation for Jira, работает с теми же правилами и тоже их исполняет.</p>
         ]]></description>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
         <vendor name="Saael" url="https://github.com/SaaelCompany/auto-jira"/>
         <param name="plugin-icon">images/plugin/plugin-icon.png</param>
         <param name="plugin-logo">images/plugin/plugin-logo.png</param>
@@ -43,4 +43,29 @@
         <link linkId="node-forms-project">/plugins/servlet/node-forms?projectKey=$projectKeyEncoded</link>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsProjectAdminCondition"/>
     </web-item>
+
+    <ao key="node-forms-automation-ao" namespace="com.codebarrel.automation.ao">
+        <namespace>com.codebarrel.addons.automation</namespace>
+        <description>Те же таблицы правил, что у Automation for Jira. Задачи обновления схемы не запускаются.</description>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleConfig</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleCfgComponent</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleTag</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleSchedule</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.AuditItem</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.AuditItemProject</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.AuditItemAscItem</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.AuditItemCgeItem</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.AuditItemCompCge</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleCfgProjAssoc</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.Counters</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.LegacyRuleLink</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.AutomationQueue</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleStat</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleStateLatest</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleStatRollupMin</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleStatRollupHr</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleStatRollupDay</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleLabel</entity>
+        <entity>com.codebarrel.jira.plugin.automation.ao.RuleToLabel</entity>
+    </ao>
 </atlassian-plugin>
